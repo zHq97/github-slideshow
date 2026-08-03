@@ -24,10 +24,13 @@ description: A fun activity for learning Git and GitHub.
 sass:
   style:     :compressed
 
-## solarized variant (dark/light)
+## Root HTML class (dark/light), emitted by _layouts/presentation.html
 solarized:
   theme:     dark
 
+## Legacy reveal.js slide numbering settings.
+## Current templates do not read site.slideNumber; configure slide numbers in
+## _includes/script.html instead.
 slideNumber:
   # Slide number formatting can be configured using these variables:
   #  "h.v":  horizontal . vertical slide number (default)
@@ -37,9 +40,9 @@ slideNumber:
   # "none":  dont't show slide numbers
   format:    "c/t"
 
-## Reveal.initialize
-## At the end of your page Jekyll initializes reveal by running the following code. Note that all config values are optional and will default as specified below.
-## Note that the new default vertical centering option will break compatibility with slides that were using transitions with backgrounds ("cube" and "page"). To restore the previous behavior, set "center" to "false".
+## Legacy Reveal.initialize settings.
+## Current templates do not read site.reveal. Runtime options are defined
+## directly in _includes/script.html; the keys below record previous defaults.
 reveal:
   ## Display controls in the bottom right corner
   controls: false
