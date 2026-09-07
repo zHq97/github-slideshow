@@ -41,8 +41,8 @@ the browser network panel before investigating slide content or print
 settings.
 
 When the template path is repaired, keep it prefixed with `site.baseurl`, as
-the other reveal.js assets are. This is required for project sites served
-below a repository path.
+the core reveal.js stylesheet and script references are. This is required for
+project sites served below a repository path.
 
 ## Verify a PDF-path change
 
