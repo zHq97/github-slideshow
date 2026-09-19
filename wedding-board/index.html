@@ -22,12 +22,29 @@ h1{margin:0;font-family:"ZCOOL XiaoWei",serif;font-size:1.28rem;font-weight:400}
 @media(max-width:1100px){body{overflow:auto}.app{height:auto}.layout{grid-template-columns:1fr;grid-template-rows:auto 48vh auto}}
 .panel{overflow:auto;padding:10px;min-height:0}
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:10px;margin-bottom:9px}
-.card h2{margin:0 0 7px;font-size:.86rem;display:flex;justify-content:space-between}.card h2 .h{font-weight:400;color:var(--soft);font-size:.68rem}
+.card h2{margin:0 0 7px;font-size:.86rem;display:flex;justify-content:space-between;align-items:center;gap:6px}.card h2 .h{font-weight:400;color:var(--soft);font-size:.68rem;white-space:nowrap}
+.card.fold>h2.fold-head{cursor:pointer;user-select:none;margin:0}
+.card.fold.open>h2.fold-head{margin-bottom:7px}
+.card.fold:not(.open) .fold-body{display:none}
+.fold-head .chev{font-size:.65rem;color:var(--soft)}
+.card.fold.open .fold-head .chev{color:var(--accent)}
 .stats{display:grid;grid-template-columns:1fr 1fr;gap:5px}
 .stat{padding:7px;border-radius:11px;background:linear-gradient(145deg,#fff,#f1eee7);border:1px solid var(--line)}.stat .n{font-size:1.15rem;font-weight:900}.stat .l{font-size:.65rem;color:var(--soft)}
-.col{background:rgba(255,255,255,.4);border:1px dashed rgba(20,32,51,.16);border-radius:11px;padding:6px;margin-bottom:6px}
-.col-t{font-size:.65rem;font-weight:700;color:var(--soft);display:flex;justify-content:space-between;margin-bottom:3px}
-.k{background:#fff;border:1px solid var(--line);border-radius:9px;padding:6px;margin-bottom:4px;cursor:grab}.k.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(196,92,38,.18)}.k .n{font-weight:700;font-size:.76rem}.k .s{font-size:.65rem;color:var(--soft)}
+.status-strip{display:flex;flex-wrap:wrap;gap:4px;margin:0 0 8px}
+.status-chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 8px;font-size:.65rem;cursor:pointer;font-family:inherit;color:var(--ink)}
+.status-chip:hover{border-color:var(--accent);color:var(--accent)}
+.status-chip.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.status-chip b{font-weight:800;margin-left:2px}
+.exec-block{margin:0 0 8px;border:1px dashed rgba(20,32,51,.16);border-radius:11px;padding:6px;background:rgba(255,255,255,.35)}
+.exec-block>h3{margin:0;font-size:.72rem;display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none;font-weight:700}
+.exec-block>h3 .h{font-weight:400;color:var(--soft);font-size:.62rem}
+.exec-block:not(.open) .exec-body{display:none}
+.exec-block.open>h3{margin-bottom:6px}
+.kanban-slim{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+@media(min-width:1200px){.kanban-slim{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.col{background:rgba(255,255,255,.55);border:1px dashed rgba(20,32,51,.16);border-radius:9px;padding:5px;min-height:42px}
+.col-t{font-size:.62rem;font-weight:700;color:var(--soft);display:flex;justify-content:space-between;margin-bottom:3px}
+.k{background:#fff;border:1px solid var(--line);border-radius:8px;padding:4px 5px;margin-bottom:3px;cursor:grab}.k.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(196,92,38,.18)}.k .n{font-weight:700;font-size:.7rem}.k .s{font-size:.6rem;color:var(--soft)}
 #map{height:100%;min-height:320px;border-left:1px solid var(--line);border-right:1px solid var(--line)}
 .map-wrap{position:relative;min-height:0}
 .tb{position:absolute;z-index:1000;left:8px;top:8px;display:flex;flex-wrap:wrap;gap:4px;max-width:calc(100% - 16px)}
@@ -122,15 +139,23 @@ table.cmp,table.rep{width:100%;border-collapse:collapse;font-size:.66rem}table.c
 </header>
 <div class="layout">
 <aside class="panel">
-  <div class="card"><h2>今晚目标<span class="h">勾选</span></h2>
-    <div class="stats" id="stats"></div>
-    <label class="check"><input type="checkbox" data-goal="g1"/> 打通 ≥8 家</label>
-    <label class="check"><input type="checkbox" data-goal="g2"/> 主池有效 ≥3</label>
-    <label class="check"><input type="checkbox" data-goal="g3"/> 约看厅 ≥2</label>
-    <label class="check"><input type="checkbox" data-goal="g4"/> 主选+备选定稿</label>
+  <div class="card fold" id="goalsCard">
+    <h2 class="fold-head" onclick="toggleFold('goals')" title="点击展开/收起">今晚目标<span class="h" id="goalsFoldHint">点击展开</span><span class="chev" id="goalsFoldChev">▸</span></h2>
+    <div class="fold-body">
+      <div class="stats" id="stats"></div>
+      <label class="check"><input type="checkbox" data-goal="g1"/> 打通 ≥8 家</label>
+      <label class="check"><input type="checkbox" data-goal="g2"/> 主池有效 ≥3</label>
+      <label class="check"><input type="checkbox" data-goal="g3"/> 约看厅 ≥2</label>
+      <label class="check"><input type="checkbox" data-goal="g4"/> 主选+备选定稿</label>
+    </div>
   </div>
-  <div class="card"><h2>执行看板<span class="h">拖拽/点选同步</span></h2><div id="kanban"></div></div>
-  <div class="card"><h2>决策向导<span class="h">逐步点选</span></h2><div id="tree"></div><div id="treeResult" class="foot"></div></div>
+  <div class="card fold" id="treeCard">
+    <h2 class="fold-head" onclick="toggleFold('tree')" title="点击展开/收起">决策向导<span class="h" id="treeFoldHint">点击展开</span><span class="chev" id="treeFoldChev">▸</span></h2>
+    <div class="fold-body">
+      <div id="tree"></div>
+      <div id="treeResult" class="foot"></div>
+    </div>
+  </div>
 </aside>
 <main class="map-wrap">
   <div class="tb" id="filters">
@@ -156,8 +181,13 @@ table.cmp,table.rep{width:100%;border-collapse:collapse;font-size:.66rem}table.c
   </div>
 </main>
 <aside class="panel">
-  <div class="card" id="syncCard"><h2>当前选中 · 联动<span class="h" id="syncHint">未选择</span></h2><div id="detail">点击酒店卡片展开详情；地图/看板/列表同步。</div></div>
-  <div class="card"><h2>名单 · 点击展开 / 再点收起<span class="h">可手动改</span></h2>
+  <div class="card" id="syncCard"><h2>当前选中 · 联动<span class="h" id="syncHint">未选择</span></h2><div id="detail">点击酒店卡片展开详情；地图/名单/状态同步。</div></div>
+  <div class="card"><h2>名单 · 状态与场地<span class="h">展开/收起卡片</span></h2>
+    <div class="status-strip" id="statusStrip"></div>
+    <div class="exec-block" id="execBlock">
+      <h3 onclick="toggleFold('exec')" title="点击展开/收起执行状态">执行状态 · 拖拽改状态<span class="h" id="execFoldHint">点击展开</span></h3>
+      <div class="exec-body"><div class="kanban-slim" id="kanban"></div></div>
+    </div>
     <input type="text" id="search" placeholder="搜索名称/商圈…"/>
     <div id="hotelList" style="margin-top:7px"></div>
   </div>
@@ -286,13 +316,16 @@ if(!state.scriptBase) state.scriptBase=SCRIPT.replace(/\\n/g,'\n');
 if(!state.scriptByHotel) state.scriptByHotel={};
 if(typeof state.scriptExpanded==='undefined') state.scriptExpanded=false;
 if(!state.fold) state.fold={};
+if(typeof state.fold.goals==='undefined') state.fold.goals=false;
+if(typeof state.fold.tree==='undefined') state.fold.tree=false;
+if(typeof state.fold.exec==='undefined') state.fold.exec=false;
 if(!state.updatedAt) state.updatedAt=new Date().toISOString();
 if(!state.syncCode) state.syncCode=localStorage.getItem(STORE+'-sync-code')||'';
 state.seedVersion=SEED.version;
 save(state);
 
 const CENTER=SEED.center;
-let filter='all', selectedId=state.hotels[0]&&state.hotels[0].id, q='', openIds=new Set();
+let filter='all', statusFilter='all', selectedId=state.hotels[0]&&state.hotels[0].id, q='', openIds=new Set();
 const markers={};
 function enrich(h){h.distKm=haversine(CENTER,h);h.band=h.distKm<=5?'r5':h.distKm<=8?'r8':'far';return h}
 state.hotels.forEach(enrich);
@@ -349,6 +382,7 @@ function sourcesHtml(h){
 }
 function visible(h){
   if(q && !(h.name+h.cluster+h.addr+(h.verifyLabel||'')).includes(q)) return false;
+  if(statusFilter!=='all' && state.status[h.id]!==statusFilter) return false;
   if(filter==='all')return true;
   if(filter==='p1')return h.priority===1;
   if(filter==='p2')return h.priority===2;
@@ -367,7 +401,7 @@ function applyFilter(){
     if(show){if(!map.hasLayer(markers[h.id])) markers[h.id].addTo(map)}
     else if(map.hasLayer(markers[h.id])) map.removeLayer(markers[h.id]);
   });
-  renderList(); renderKanban();
+  renderList(); renderKanban(); renderStatusStrip();
 }
 
 function setStatus(id,st){state.status[id]=st;save(state);renderAll();selectHotel(id,false);toast((state.hotels.find(h=>h.id===id)||{}).name+' → '+statusTitle(st))}
@@ -398,8 +432,20 @@ function renderStats(){
     '<div class="stat"><div class="n">'+vok+'/'+vweak+'</div><div class="l">可信/弱源</div></div>'+
     '<div class="stat"><div class="n">'+r5+'</div><div class="l">≤5km</div></div>';
 }
+function renderStatusStrip(){
+  const c={}; COLS.forEach(x=>c[x.key]=0);
+  state.hotels.forEach(h=>{c[state.status[h.id]]=(c[state.status[h.id]]||0)+1});
+  const total=state.hotels.length;
+  var html='<button type="button" class="status-chip '+(statusFilter==='all'?'on':'')+'" data-st="all">全部 <b>'+total+'</b></button>';
+  html+=COLS.map(function(col){
+    return '<button type="button" class="status-chip '+(statusFilter===col.key?'on':'')+'" data-st="'+col.key+'">'+col.title+' <b>'+(c[col.key]||0)+'</b></button>';
+  }).join('');
+  document.getElementById('statusStrip').innerHTML=html;
+}
 function renderKanban(){
-  document.getElementById('kanban').innerHTML=COLS.map(function(col){
+  var box=document.getElementById('kanban');
+  if(!box) return;
+  box.innerHTML=COLS.map(function(col){
     const items=state.hotels.filter(h=>state.status[h.id]===col.key&&visible(h));
     return '<div class="col" ondragover="event.preventDefault()" ondrop="onDrop(event,\''+col.key+'\')"><div class="col-t"><span>'+col.title+'</span><span>'+items.length+'</span></div>'+
       items.map(function(h){
@@ -410,6 +456,31 @@ function renderKanban(){
 }
 window.onDrag=function(e,id){e.dataTransfer.setData('text/plain',id)};
 window.onDrop=function(e,col){e.preventDefault();var id=e.dataTransfer.getData('text/plain');if(id)setStatus(id,col)};
+
+function applyFoldUI(){
+  var fold=state.fold||{};
+  var goalsOpen=!!fold.goals, treeOpen=!!fold.tree, execOpen=!!fold.exec;
+  var goalsCard=document.getElementById('goalsCard');
+  var treeCard=document.getElementById('treeCard');
+  var execBlock=document.getElementById('execBlock');
+  if(goalsCard) goalsCard.classList.toggle('open', goalsOpen);
+  if(treeCard) treeCard.classList.toggle('open', treeOpen);
+  if(execBlock) execBlock.classList.toggle('open', execOpen);
+  var gh=document.getElementById('goalsFoldHint'); if(gh) gh.textContent=goalsOpen?'点击收起':'点击展开';
+  var th=document.getElementById('treeFoldHint'); if(th) th.textContent=treeOpen?'点击收起':'点击展开';
+  var eh=document.getElementById('execFoldHint'); if(eh) eh.textContent=execOpen?'点击收起':'点击展开';
+  var gc=document.getElementById('goalsFoldChev'); if(gc) gc.textContent=goalsOpen?'▾':'▸';
+  var tc=document.getElementById('treeFoldChev'); if(tc) tc.textContent=treeOpen?'▾':'▸';
+}
+window.toggleFold=function(key){
+  if(!state.fold) state.fold={};
+  state.fold[key]=!state.fold[key];
+  save(state);
+  applyFoldUI();
+  if(key==='tree'&&state.fold.tree) renderTree();
+  if(key==='exec'&&state.fold.exec) renderKanban();
+  if(key==='goals'&&state.fold.goals){renderStats();bindGoals();}
+};
 
 function renderList(){
   var html='';
@@ -503,7 +574,7 @@ function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').
 function renderDetail(){
   var h=state.hotels.find(function(x){return x.id===selectedId});
   document.getElementById('syncHint').textContent=h?h.name:'未选择';
-  if(!h){document.getElementById('detail').textContent='点击酒店卡片展开详情';return}
+  if(!h){document.getElementById('detail').textContent='点击酒店卡片展开详情；地图/名单/状态同步';return}
   var tel=String(h.phone).indexOf('待')===0?'<button class="btn" disabled>电话待核实</button>':'<a class="btn primary" href="tel:'+String(h.phone).replace(/-/g,'')+'">拨打 '+h.phone+'</a>';
   var txt=getScriptText(h.id);
   var customized=!!state.scriptByHotel[h.id];
@@ -697,6 +768,11 @@ document.getElementById('btnAnchors').onclick=function(){
   showAnchors=!showAnchors; this.classList.toggle('on',showAnchors); rebuildAnchors(); toast(showAnchors?'显示地铁锚点':'隐藏地铁锚点');
 };
 document.getElementById('search').oninput=function(e){q=e.target.value.trim();applyFilter()};
+document.getElementById('statusStrip').addEventListener('click',function(e){
+  var b=e.target.closest('[data-st]'); if(!b) return;
+  statusFilter=b.getAttribute('data-st');
+  applyFilter();
+});
 
 
 const SYNC_KEYS=['hotels','status','notes','compare','tree','goals','manual','calls','scriptBase','scriptByHotel','scriptExpanded','fold'];
@@ -948,8 +1024,8 @@ document.getElementById('btnAdd').onclick=function(){
 document.getElementById('btnReset').onclick=function(){if(!confirm('重置为种子名单？'))return; localStorage.removeItem(STORE); location.reload()};
 
 function bindGoals(){document.querySelectorAll('[data-goal]').forEach(function(el){el.checked=!!state.goals[el.dataset.goal]; el.onchange=function(){state.goals[el.dataset.goal]=el.checked;save(state)}})}
-function renderAll(){renderStats();renderKanban();renderList();renderCompare();renderTree();renderDetail();document.getElementById('hotelCount').textContent=state.hotels.length}
-bindGoals(); rebuildMarkers(); renderAll(); selectHotel(selectedId,true); setTimeout(function(){map.invalidateSize()},200);
+function renderAll(){renderStats();renderStatusStrip();renderKanban();renderList();renderCompare();renderTree();renderDetail();applyFoldUI();document.getElementById('hotelCount').textContent=state.hotels.length}
+bindGoals(); applyFoldUI(); rebuildMarkers(); renderAll(); selectHotel(selectedId,true); setTimeout(function(){map.invalidateSize()},200);
 </script>
 </body>
 </html>
