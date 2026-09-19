@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>今晚决策看板 v4 · 新通国际花园</title>
+<title>今晚决策看板 v5 · 新通国际花园</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -71,19 +71,29 @@ table.cmp,table.rep{width:100%;border-collapse:collapse;font-size:.66rem}table.c
 .modal h3{margin:0 0 8px;font-family:"ZCOOL XiaoWei",serif;font-size:1.2rem}
 .publish{background:#f4f7f5;border:1px dashed var(--ok);border-radius:10px;padding:8px;font-size:.7rem;line-height:1.45}
 .score{display:inline-block;min-width:28px;text-align:center;font-weight:800;color:var(--accent)}
+.verify{display:inline-block;font-size:.62rem;font-weight:700;padding:1px 6px;border-radius:999px;border:1px solid var(--line);margin-left:4px;vertical-align:middle}
+.verify.confirmed{background:#e8f5ef;color:#0f5c45;border-color:#9dceb8}
+.verify.likely{background:#eef3f8;color:#1e3a5f;border-color:#b7c7db}
+.verify.platform_only{background:#fff7ed;color:#9a3412;border-color:#fdba74}
+.verify.suspect{background:#fef2f2;color:#9f1239;border-color:#fca5a5}
+.sources{margin-top:8px;padding:8px;border-radius:8px;background:#f4f7f5;border:1px solid var(--line);font-size:.68rem;line-height:1.45}
+.sources b{display:block;margin-bottom:4px}
+.sources a{color:#1f6f5b;word-break:break-all}
+.sources li{margin:3px 0 3px 14px}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
   <div>
-    <h1>今晚决策看板 v4 · 新通国际花园</h1>
+    <h1>今晚决策看板 v5 · 新通国际花园</h1>
     <div class="meta">
       <span class="chip">2027-10-01</span>
       <span class="chip">8–10桌</span>
       <span class="chip">圆心 <b>新通国际花园</b></span>
       <span class="chip">5km / 8km</span>
       <span class="chip">坐标 <b>GCJ-02</b></span>
+      <span class="chip">真伪核验 <b>2026-09-19</b></span>
       <span class="chip">种子 <b id="hotelCount">0</b> 家</span>
     </div>
   </div>
@@ -121,6 +131,8 @@ table.cmp,table.rep{width:100%;border-collapse:collapse;font-size:.66rem}table.c
     <button class="btn" data-f="r8">5–8km</button>
     <button class="btn" data-f="todo">待拨打</button>
     <button class="btn" data-f="valid">有效/约看</button>
+    <button class="btn" data-f="v_ok">已核实/较可信</button>
+    <button class="btn" data-f="v_weak">仅平台/存疑</button>
     <button class="btn" id="btnFit">适配</button>
     <button class="btn on" id="btnAnchors">地铁锚点</button>
   </div>
@@ -129,6 +141,7 @@ table.cmp,table.rep{width:100%;border-collapse:collapse;font-size:.66rem}table.c
     <div><i style="background:#c45c26"></i>P1 <i style="background:#1f6f5b"></i>P2 <i style="background:#4b5d78"></i>P3</div>
     <div><i style="background:#142033"></i>新通国际花园 · GCJ-02 直投高德</div>
     <div><i style="background:#5b6b88"></i>地铁锚点（可选）· 已核实/已校准/近似</div>
+    <div>真伪：已核实 / 较可信 / 仅平台 / 存疑（点详情看来源）</div>
   </div>
 </main>
 <aside class="panel">
@@ -177,10 +190,10 @@ table.cmp,table.rep{width:100%;border-collapse:collapse;font-size:.66rem}table.c
   </div>
 </div>
 <div class="toast" id="toast"></div>
-<script type="application/json" id="SEED">{"version":4,"center":{"id":"xintong","name":"新通国际花园","addr":"通州梨园中街与九棵树东路交叉口东北（梨园站北侧）","lat":39.885419,"lng":116.669562,"coordSys":"GCJ-02","accuracy":"calibrated","note":"以维基/OSM 梨园站为锚，向北约200m（小区在站北侧）"},"radiiKm":[5,8],"hotels":[{"id":"yatai","priority":1,"name":"亚太花园酒店","addr":"玉桥西路103号","lat":39.886846,"lng":116.67094,"price":"约 2299–4688/桌","priceMid":2800,"tables":"约 3–24 桌 · 无柱宴会厅线索","phone":"010-81528822","phoneNote":"公开页可见","tip":"四星酒店；问 10 桌是否独立厅、国庆定金与换厅","cluster":"梨园/玉桥核心","why":"距新通国际花园近；桌数上限贴合小婚宴","styleFit":"both","coordSys":"GCJ-02","accuracy":"verified","geoNote":"OSM way 亚太花园酒店 → WGS 转 GCJ-02"},{"id":"aifeier","priority":1,"name":"爱菲尔宴会中心","addr":"梨园南街328-3号","lat":39.872551,"lng":116.682063,"price":"约 3999–8999/桌（或含场布）","priceMid":4500,"tables":"含约 8 桌小厅；多厅","phone":"15910738779","phoneNote":"近3年可见","tip":"要小厅；问展示价是否含场布","cluster":"临河里宴会集群","why":"厅型匹配 8–10 桌","styleFit":"western","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"临河里站东南约450m，对齐公开步行距离"},{"id":"shengshi","priority":1,"name":"盛世家宴","addr":"梨园南街326号","lat":39.872911,"lng":116.681595,"price":"约 1899–3399/桌","priceMid":2600,"tables":"多厅；需问 10 桌是否过大厅","phone":"010-81591055","phoneNote":"待核实年份","tip":"问隔断/小宴灯光模式","cluster":"临河里宴会集群","why":"餐标落在普通–舒适带","styleFit":"both","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"梨园南街326，邻328号段"},{"id":"lanpai","priority":1,"name":"蓝派之恋婚礼中心","addr":"荔景西路紫运西里22栋","lat":39.908775,"lng":116.679162,"price":"约 2580–4680/桌","priceMid":3500,"tables":"一站式婚礼堂","phone":"待核实","phoneNote":"待核实","tip":"先测距；问强制打包婚庆否","cluster":"荔景/武夷边缘","why":"简约西式友好","styleFit":"western","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"荔景/紫运西里，相对梨园站北向估算"},{"id":"wanlongzhou","priority":2,"name":"万龙洲（通州店）","addr":"九棵树东路386号京贸新干线","lat":39.879468,"lng":116.674689,"price":"约 2188–7188/桌","priceMid":2800,"tables":"约 3–60 桌","phone":"待核实","phoneNote":"待核实","tip":"问音响灯光是否免费、进场费","cluster":"临河里宴会集群","why":"酒楼性价比与舞台条件","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"九棵树东路京贸新干线，临河里北侧"},{"id":"nishi","priority":2,"name":"倪氏海鲜（通州店）","addr":"梨园南街红绿灯东北角","lat":39.874707,"lng":116.680893,"price":"约 1688–4988/桌","priceMid":2500,"tables":"约 3–46 桌","phone":"待核实","phoneNote":"待核实","tip":"核实服务费/开瓶费/场地费","cluster":"临河里宴会集群","why":"普通规格友好","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"梨园南街红绿灯东北角近临河里"},{"id":"jinziyin","priority":2,"name":"金紫银海鲜（通州店）","addr":"梨园南小街红绿灯东北角","lat":39.874887,"lng":116.680659,"price":"约 1888–2888/桌","priceMid":2300,"tables":"约 3–33 桌","phone":"待核实","phoneNote":"待核实","tip":"拒绝无隔离拼厅","cluster":"临河里宴会集群","why":"公开餐标贴近普通规格","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"梨园南小街红绿灯东北角"},{"id":"shengfeng","priority":2,"name":"盛丰楼","addr":"京贸新干线/小街三队综合楼","lat":39.879199,"lng":116.67504,"price":"约 1999–5999/桌","priceMid":2700,"tables":"1F≤30 / 2F≤60","phone":"待核实","phoneNote":"待核实","tip":"优先 1F 小规模方案","cluster":"临河里宴会集群","why":"与万龙洲同商圈便于连看","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"同京贸新干线商圈"},{"id":"jinlu","priority":2,"name":"锦炉（梨园店）","addr":"梨园南街328号","lat":39.872731,"lng":116.682298,"price":"约 2188 起","priceMid":2400,"tables":"需确认小规模厅","phone":"待核实","phoneNote":"待核实","tip":"与爱菲尔同街可顺路","cluster":"临河里宴会集群","why":"菜单公开细","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"梨园南街328，临河里A口步行约590m"},{"id":"qingnian_yj","priority":2,"name":"青年餐厅（云景东路）","addr":"梨园镇云景东路52号","lat":39.882275,"lng":116.663358,"price":"约 1388–2188/桌","priceMid":1800,"tables":"约 3–26 桌","phone":"待核实","phoneNote":"待核实","tip":"经济档；确认仪式区与独立感","cluster":"梨园云景","why":"近圆心、餐标低、适合控预算","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"云景东路，梨园站西侧"},{"id":"qingnian_cp","priority":2,"name":"青年餐厅（翠屏北里）","addr":"翠屏北里西区13号楼","lat":39.891258,"lng":116.659846,"price":"约 1088–3688/桌","priceMid":2000,"tables":"约 3–28 桌","phone":"待核实","phoneNote":"待核实","tip":"问国庆档与化妆间","cluster":"翠屏/梨园北","why":"普通规格备选池","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"翠屏北里，梨园西北"},{"id":"yayuan","priority":2,"name":"时尚雅园大酒店","addr":"运河西大街葛布店南里1号","lat":39.889179,"lng":116.662409,"price":"宴会价待询","priceMid":2500,"tables":"最大会场约 450㎡（会议向，婚宴待验证）","phone":"待核实","phoneNote":"待核实","tip":"先确认是否承接婚宴及 10 桌方案","cluster":"九棵树/果园","why":"近九棵树，拓展供给","styleFit":"both","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"九棵树站东约545m/果园环岛东"},{"id":"dongfang","priority":3,"name":"东方御宴大酒楼","addr":"嘉创二路甲2号一带（通州）","lat":39.870094,"lng":116.695585,"price":"约 1000–3888/桌","priceMid":2200,"tables":"约 3–30 桌","phone":"待核实","phoneNote":"待核实","tip":"测距；确认地址准确门牌","cluster":"拓展圈","why":"公开餐标覆盖普通档","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"嘉创二路一带拓展"},{"id":"jinhongdi","priority":3,"name":"金宏帝怡园","addr":"通州北寺北口一带","lat":39.899792,"lng":116.642871,"price":"约 1288–2588/桌","priceMid":1900,"tables":"约 3–30 桌","phone":"待核实","phoneNote":"待核实","tip":"边缘拓展；先测距再打","cluster":"拓展圈","why":"低餐标备选","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"北寺北口拓展"},{"id":"yunheyuan","priority":3,"name":"运河源酒店","addr":"通州区（公开榜单）","lat":39.896118,"lng":116.71016,"price":"约 888–2299/桌","priceMid":1600,"tables":"约 3–36 桌","phone":"待核实","phoneNote":"待核实","tip":"经济档；仪式条件可能弱","cluster":"拓展圈","why":"预算紧凑时的边缘选项","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"运河沿线拓展"},{"id":"wanda","priority":3,"name":"通州万达锦华酒店","addr":"万盛南街102号","lat":39.893423,"lng":116.724212,"price":"宴会能力待询","priceMid":4000,"tables":"会议/餐饮向","phone":"010-58756666","phoneNote":"官网可见","tip":"问能否接 10 桌婚宴","cluster":"副中心/万盛西","why":"电话稳的机动备胎","styleFit":"western","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"万盛南街近万盛西枢纽估算"},{"id":"hampton","priority":3,"name":"运河商务区希尔顿欢朋","addr":"新华东街126号","lat":39.905222,"lng":116.692027,"price":"会议向，婚宴待询","priceMid":3800,"tables":"会议约 300 人级≠成熟婚宴","phone":"010-80881866","phoneNote":"官网可见","tip":"仅档期备胎","cluster":"运河商务区","why":"电话可信","styleFit":"western","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"新华东街近北运河西"},{"id":"henghao","priority":3,"name":"北京恒豪酒店","addr":"通州（婚礼猫列表）","lat":39.897914,"lng":116.703134,"price":"约 1388–2688/桌","priceMid":2000,"tables":"约 3–28 桌","phone":"待核实","phoneNote":"待核实","tip":"确认准确地址与国庆档","cluster":"拓展圈","why":"普通规格拓展池","styleFit":"both","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"通州拓展池"},{"id":"dayali","priority":2,"name":"大鸭梨烤鸭店（土桥店）","addr":"梨园镇砖厂南里40号楼华远好天地2楼","lat":39.871735,"lng":116.699487,"price":"宴会价待询（会场约450㎡线索）","priceMid":2400,"tables":"会议/宴会向，约可二百人级","phone":"待核实","phoneNote":"待核实","tip":"问是否承接婚宴8–10桌及独立区","cluster":"土桥拓展","why":"临近土桥，拓展供给","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"土桥/华远好天地一带，锚点校准"},{"id":"geya","priority":3,"name":"格雅酒店（环球梨园店）","addr":"梨园东里2号","lat":39.877672,"lng":116.689906,"price":"会议向，婚宴待询","priceMid":2800,"tables":"小会议厅为主，婚宴能力待验证","phone":"待核实","phoneNote":"待核实","tip":"先确认有无宴会餐饮包场","cluster":"临河里/梨园东","why":"住宿配套机动","styleFit":"both","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"梨园东里，距临河里约1.2km"},{"id":"crowne","priority":3,"name":"通州皇冠假日酒店","addr":"京彩街35号（近群芳站）","lat":39.906448,"lng":116.713673,"price":"五星会议餐标偏高，待询婚宴","priceMid":5500,"tables":"会议厅多，婚宴需专项询价","phone":"待核实","phoneNote":"待核实","tip":"可能超普通规格预算，仅作对照","cluster":"副中心拓展","why":"品牌对照样本","styleFit":"western","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"京彩街/群芳一带对照"},{"id":"yunhewan","priority":3,"name":"运河湾生态园","addr":"张家湾镇张凤路15号一带","lat":39.861111,"lng":116.718994,"price":"约 1288–2888/桌","priceMid":2000,"tables":"约 3–50 桌","phone":"待核实","phoneNote":"待核实","tip":"测距；偏远需确认宾客通勤","cluster":"张家湾拓展","why":"低餐标生态园选项","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"张家湾张凤路拓展"},{"id":"xinghu","priority":3,"name":"星湖园华夏婚礼中心","addr":"台湖镇铺大路与张台路交汇一带","lat":39.843145,"lng":116.688562,"price":"约 1988–2888/桌","priceMid":2400,"tables":"约 3–60 桌","phone":"待核实","phoneNote":"待核实","tip":"多半>8km，仅主池不足时看","cluster":"台湖拓展","why":"婚礼中心形态","styleFit":"both","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"台湖拓展"},{"id":"sanle","priority":3,"name":"三乐宴会中心","addr":"马驹桥陈各庄一带","lat":39.834215,"lng":116.580826,"price":"约 1680–3280/桌","priceMid":2400,"tables":"约 3–120 桌，层高宣传高","phone":"待核实","phoneNote":"待核实","tip":"距离远；仪式硬件可能好","cluster":"马驹桥拓展","why":"大层高宴会对照","styleFit":"both","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"马驹桥拓展，距圆心较远"},{"id":"jinshitan","priority":3,"name":"金石滩","addr":"通州（婚礼猫列表）","lat":39.889012,"lng":116.647554,"price":"约 1288–2888/桌","priceMid":2000,"tables":"待确认","phone":"待核实","phoneNote":"待核实","tip":"确认准确门牌与国庆档","cluster":"拓展圈","why":"普通档补充","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"通州拓展"}],"coordSys":"GCJ-02","anchors":[{"id":"metro_liyuan","name":"地铁梨园站","lat":39.883622,"lng":116.668626,"accuracy":"verified","src":"Wikipedia/OSM WGS→GCJ"},{"id":"metro_linheli","name":"地铁临河里站","lat":39.875426,"lng":116.678786,"accuracy":"verified","src":"OSM WGS→GCJ"},{"id":"metro_jiukeshu","name":"地铁九棵树站","lat":39.890257,"lng":116.657492,"accuracy":"verified","src":"OSM WGS→GCJ"},{"id":"metro_tuqiao","name":"地铁土桥站","lat":39.871891,"lng":116.686221,"accuracy":"verified","src":"OSM WGS→GCJ"}]}</script>
+<script type="application/json" id="SEED">{"version":5,"center":{"id":"xintong","name":"新通国际花园","addr":"通州梨园中街与九棵树东路交叉口东北（梨园站北侧）","lat":39.885419,"lng":116.669562,"coordSys":"GCJ-02","accuracy":"calibrated","note":"以维基/OSM 梨园站为锚，向北约200m（小区在站北侧）"},"radiiKm":[5,8],"hotels":[{"id":"yatai","priority":1,"name":"亚太花园酒店","addr":"玉桥西路103号","lat":39.886846,"lng":116.67094,"price":"约 2299–4688/桌","priceMid":2800,"tables":"约 3–24 桌 · 无柱宴会厅线索","phone":"010-81528822","phoneNote":"公开页可见","tip":"四星酒店；问 10 桌是否独立厅、国庆定金与换厅","cluster":"梨园/玉桥核心","why":"距新通国际花园近；桌数上限贴合小婚宴","styleFit":"both","coordSys":"GCJ-02","accuracy":"verified","geoNote":"OSM way 亚太花园酒店 → WGS 转 GCJ-02","existence":"confirmed","verifyLabel":"已核实·多源","verifyNote":"官网+百度百科+北京旅游网一致：玉桥西路103号；餐饮会议电话010-81528822。","sources":[{"name":"酒店官网","url":"https://www.beijingasiapacific.cn/","note":"地址与四星信息"},{"name":"百度百科","url":"https://baike.baidu.com/item/北京亚太花园酒店/4713753","note":"通州玉桥西路"},{"name":"北京旅游网","url":"https://s.visitbeijing.com.cn/index.php/hotel/40101167","note":"通州店介绍"}],"verifiedAt":"2026-09-19"},{"id":"aifeier","priority":1,"name":"爱菲尔宴会中心","addr":"梨园南街328-3号","lat":39.872551,"lng":116.682063,"price":"约 3999–8999/桌（或含场布）","priceMid":4500,"tables":"含约 8 桌小厅；多厅","phone":"15910738779","phoneNote":"近3年可见","tip":"要小厅；问展示价是否含场布","cluster":"临河里宴会集群","why":"厅型匹配 8–10 桌","styleFit":"western","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"临河里站东南约450m，对齐公开步行距离","existence":"confirmed","verifyLabel":"已核实·多源","verifyNote":"会小二场地页+品牌介绍页（2026更新）一致：梨园南街328-3号；电话15910738779。","sources":[{"name":"会小二","url":"https://www.huixiaoer.com/view/hotel-86199132","note":"地址/厅型"},{"name":"品牌页(2026-08)","url":"http://aifeier.m.pinsowang.com/","note":"电话与地址"},{"name":"企业介绍","url":"https://www.okmart.com/qynews/article/222928.html","note":"临河里站"}],"verifiedAt":"2026-09-19"},{"id":"shengshi","priority":3,"name":"盛世家宴","addr":"梨园南街326号","lat":39.872911,"lng":116.681595,"price":"约 1899–3399/桌","priceMid":2600,"tables":"多厅；需问 10 桌是否过大厅","phone":"010-81591055","phoneNote":"待核实年份","tip":"问隔断/小宴灯光模式","cluster":"临河里宴会集群","why":"餐标落在普通–舒适带","styleFit":"both","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"梨园南街326，邻328号段","existence":"suspect","verifyLabel":"存疑·或已更名/停业","verifyNote":"婚礼平台/易企秀仍有「盛世家宴·梨园南街326」旧页；同址工商现为云中蜀歌、十三嘉等餐饮主体，未见现营「盛世家宴」官网。拨打前务必确认招牌。","sources":[{"name":"易企秀H5","url":"https://show.eqxiu.com/s/corhJGrx","note":"旧宣传·010-81591055"},{"name":"婚庆网2019","url":"https://www.hunzha.com/hotel/201906/159.shtml","note":"最后更新偏旧"},{"name":"黄页·同址他司","url":"https://www.yellowurl.cn/78780836.html","note":"326号1层现登记其他餐饮公司"}],"verifiedAt":"2026-09-19"},{"id":"lanpai","priority":1,"name":"蓝派之恋婚礼中心","addr":"荔景西路紫运西里22栋","lat":39.908775,"lng":116.679162,"price":"约 2580–4680/桌","priceMid":3500,"tables":"一站式婚礼堂","phone":"待核实","phoneNote":"婚礼猫仅显400，勿当门店直拨","tip":"先测距；问强制打包婚庆否","cluster":"荔景/武夷边缘","why":"简约西式友好","styleFit":"western","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"荔景/紫运西里，相对梨园站北向估算","existence":"likely","verifyLabel":"较可信·平台+工商","verifyNote":"婚礼猫/会掌柜地址荔景紫运西里；工商「蓝派之恋紫运婚礼文化」注册紫运西里23号楼。电话多为平台400，门店直拨待核。","sources":[{"name":"婚礼猫","url":"http://bj.hunlimao.com/hotel/4540","note":"紫运西里22栋"},{"name":"会掌柜","url":"https://beijing.huizone.com/changdi/hall-186563.html","note":"厅型"},{"name":"公司招聘页","url":"https://dianzhangzhipin.com/company/1X1z0t20.html","note":"注册紫运西里23号楼"}],"verifiedAt":"2026-09-19"},{"id":"wanlongzhou","priority":2,"name":"万龙洲（通州店）","addr":"九棵树东路386号京贸新干线","lat":39.879468,"lng":116.674689,"price":"约 2188–7188/桌","priceMid":2800,"tables":"约 3–60 桌","phone":"待核实","phoneNote":"待核实","tip":"问音响灯光是否免费、进场费","cluster":"临河里宴会集群","why":"酒楼性价比与舞台条件","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"九棵树东路京贸新干线，临河里北侧","existence":"likely","verifyLabel":"较可信·平台多源","verifyNote":"婚礼猫+婚庆网均指向九棵树东路386号京贸新干线。无官网直拨号，仅平台400。","sources":[{"name":"婚礼猫","url":"http://bj.hunlimao.com/hotel/5426","note":"地址与餐标"},{"name":"婚庆网","url":"https://t01060515555.wed.hunzha.com/","note":"临河里站北口描述"}],"verifiedAt":"2026-09-19"},{"id":"nishi","priority":2,"name":"倪氏海鲜（通州店）","addr":"梨园南街红绿灯东北角","lat":39.874707,"lng":116.680893,"price":"约 1688–4988/桌","priceMid":2500,"tables":"约 3–46 桌","phone":"待核实","phoneNote":"待核实","tip":"核实服务费/开瓶费/场地费","cluster":"临河里宴会集群","why":"普通规格友好","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"梨园南街红绿灯东北角近临河里","existence":"likely","verifyLabel":"较可信·百科+平台","verifyNote":"百度百科词条+婚礼猫：梨园南街红绿灯东北角。营业现状建议地图/点评复核。","sources":[{"name":"百度百科","url":"https://baike.baidu.com/item/倪氏海鲜大酒店（通州店）/14329788","note":"通州店简介"},{"name":"婚礼猫列表","url":"http://bj.hunlimao.com/hotels_P1-C252-D261-c2-p1-n5-t4","note":"餐标区间"},{"name":"婚庆网","url":"https://www.hunzha.com/hotel/201910/4159.shtml","note":"厅型描述"}],"verifiedAt":"2026-09-19"},{"id":"jinziyin","priority":2,"name":"金紫银海鲜（通州店）","addr":"梨园南小街红绿灯东北角","lat":39.874887,"lng":116.680659,"price":"约 1888–2888/桌","priceMid":2300,"tables":"约 3–33 桌","phone":"待核实","phoneNote":"待核实","tip":"拒绝无隔离拼厅","cluster":"临河里宴会集群","why":"公开餐标贴近普通规格","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"梨园南小街红绿灯东北角","existence":"platform_only","verifyLabel":"仅平台·待实地","verifyNote":"主要见于婚礼猫/婚庆网，地址「梨园南小街红绿灯东北角」。缺少官网与近期点评交叉，按待实地处理。","sources":[{"name":"婚礼猫","url":"http://bj.hunlimao.com/hotel/4550","note":"餐标1888–2888"},{"name":"婚庆网2019","url":"https://www.hunzha.com/hotel/201906/377.shtml","note":"文案偏旧"}],"verifiedAt":"2026-09-19"},{"id":"shengfeng","priority":2,"name":"盛丰楼","addr":"京贸新干线/小街三队综合楼","lat":39.879199,"lng":116.67504,"price":"约 1999–5999/桌","priceMid":2700,"tables":"1F≤30 / 2F≤60","phone":"待核实","phoneNote":"待核实","tip":"优先 1F 小规模方案","cluster":"临河里宴会集群","why":"与万龙洲同商圈便于连看","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"同京贸新干线商圈","existence":"likely","verifyLabel":"较可信·工商+平台","verifyNote":"北京盛丰楼餐饮有限责任公司注册京贸新干线；婚礼猫有婚宴页。","sources":[{"name":"婚礼猫","url":"http://bj.hunlimao.com/hotel/4548","note":"地址与桌数"},{"name":"公司信息","url":"https://www.wondercv.com/company/75c8dc14798e11ea.html","note":"工商注册同址"},{"name":"婚庆网","url":"https://www.hunzha.com/hotel/201906/235.shtml","note":"厅型"}],"verifiedAt":"2026-09-19"},{"id":"jinlu","priority":2,"name":"锦炉（梨园店）","addr":"梨园南街328号","lat":39.872731,"lng":116.682298,"price":"约 2188 起","priceMid":2400,"tables":"需确认小规模厅","phone":"待核实","phoneNote":"待核实","tip":"与爱菲尔同街可顺路","cluster":"临河里宴会集群","why":"菜单公开细","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"梨园南街328，临河里A口步行约590m","existence":"platform_only","verifyLabel":"仅平台·或与邻店混淆","verifyNote":"婚礼纪有「锦炉梨园店·328号」；同街328-3为爱菲尔。可能更名/转租/列表残留，勿与爱菲尔混为一谈。","sources":[{"name":"婚礼纪","url":"https://hotel.hunliji.com/beijing/detail_4975227","note":"2188起·电话栏空"}],"verifiedAt":"2026-09-19"},{"id":"qingnian_yj","priority":2,"name":"青年餐厅（云景东路）","addr":"梨园镇云景东路52号","lat":39.882275,"lng":116.663358,"price":"约 1388–2188/桌","priceMid":1800,"tables":"约 3–26 桌","phone":"待核实","phoneNote":"待核实","tip":"经济档；确认仪式区与独立感","cluster":"梨园云景","why":"近圆心、餐标低、适合控预算","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"云景东路，梨园站西侧","existence":"likely","verifyLabel":"较可信·百科+平台","verifyNote":"百科「青年餐厅云景里店」云景东路52号；婚礼猫有婚宴套餐。","sources":[{"name":"百度百科","url":"https://baike.baidu.com/item/青年餐厅云景里店/14286440","note":"云景东路52号"},{"name":"婚礼猫","url":"http://bj.hunlimao.com/hotel/4541","note":"餐标区间"}],"verifiedAt":"2026-09-19"},{"id":"qingnian_cp","priority":2,"name":"青年餐厅（翠屏北里）","addr":"翠屏北里西区13号楼","lat":39.891258,"lng":116.659846,"price":"约 1088–3688/桌","priceMid":2000,"tables":"约 3–28 桌","phone":"待核实","phoneNote":"待核实","tip":"问国庆档与化妆间","cluster":"翠屏/梨园北","why":"普通规格备选池","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"翠屏北里，梨园西北","existence":"platform_only","verifyLabel":"仅平台·待实地","verifyNote":"婚庆网有翠屏北里店介绍，缺官网/地图强交叉。","sources":[{"name":"婚庆网","url":"https://t01081517673.wed.hunzha.com/","note":"翠屏北里店"},{"name":"婚庆网旧页","url":"https://m.hunzha.com/hotel/201906/138.shtml","note":"2019语境"}],"verifiedAt":"2026-09-19"},{"id":"yayuan","priority":2,"name":"时尚雅园大酒店","addr":"运河西大街葛布店南里1号","lat":39.889179,"lng":116.662409,"price":"宴会价待询","priceMid":2500,"tables":"最大会场约 450㎡（会议向，婚宴待验证）","phone":"待核实","phoneNote":"待核实","tip":"先确认是否承接婚宴及 10 桌方案","cluster":"九棵树/果园","why":"近九棵树，拓展供给","styleFit":"both","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"九棵树站东约545m/果园环岛东","existence":"likely","verifyLabel":"较可信·会议酒店","verifyNote":"会小二+工商：葛布店南里1号。会议向，婚宴承接能力未证实。","sources":[{"name":"会小二","url":"https://www.huixiaoer.com/view/hotel-86101772","note":"最大会场约450㎡"},{"name":"工商黄页","url":"https://www.51fdd.com/bj/9906829.html","note":"公司地址一致"}],"verifiedAt":"2026-09-19"},{"id":"dongfang","priority":3,"name":"东方御宴大酒楼","addr":"嘉创二路甲2号（近光机电一体化产业基地）","lat":39.870094,"lng":116.695585,"price":"约 1000–3888/桌","priceMid":2200,"tables":"约 3–30 桌","phone":"待核实","phoneNote":"待核实","tip":"测距；确认地址准确门牌","cluster":"拓展圈","why":"公开餐标覆盖普通档","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"嘉创二路一带拓展","existence":"platform_only","verifyLabel":"仅平台·偏远","verifyNote":"婚礼猫：嘉创二路甲2号。无官网交叉，距梨园远。","sources":[{"name":"婚礼猫","url":"http://bj.hunlimao.com/hotel/4544","note":"1000–3888/桌"}],"verifiedAt":"2026-09-19"},{"id":"jinhongdi","priority":3,"name":"金宏帝怡园","addr":"通州北寺北口一带","lat":39.899792,"lng":116.642871,"price":"约 1288–2588/桌","priceMid":1900,"tables":"约 3–30 桌","phone":"待核实","phoneNote":"待核实","tip":"边缘拓展；先测距再打","cluster":"拓展圈","why":"低餐标备选","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"北寺北口拓展","existence":"platform_only","verifyLabel":"仅平台·地址粗","verifyNote":"婚礼猫仅写「北寺北口」，门牌不清，易误导航。","sources":[{"name":"婚礼猫列表","url":"http://bj.hunlimao.com/hotels_P1-C252-D261-c2-p1-t6","note":"北寺北口"}],"verifiedAt":"2026-09-19"},{"id":"yunheyuan","priority":3,"name":"运河源酒店","addr":"运河西大街172号（靠近玉桥中路）","lat":39.896118,"lng":116.71016,"price":"约 888–2299/桌","priceMid":1600,"tables":"约 3–36 桌","phone":"待核实","phoneNote":"待核实","tip":"经济档；仪式条件可能弱","cluster":"拓展圈","why":"预算紧凑时的边缘选项","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"运河沿线拓展","existence":"likely","verifyLabel":"较可信·地址已校准","verifyNote":"婚礼猫/会小二指向运河西大街172号（非笼统「通州区」）。","sources":[{"name":"婚礼猫","url":"http://bj.hunlimao.com/hotel/4546","note":"运河西大街172号"},{"name":"会小二邻页","url":"https://www.huixiaoer.com/beijing/dizhi-86103090","note":"运河源温泉酒店同街段"}],"verifiedAt":"2026-09-19"},{"id":"wanda","priority":3,"name":"通州万达锦华酒店","addr":"万盛南街102号","lat":39.893423,"lng":116.724212,"price":"宴会能力待询","priceMid":4000,"tables":"会议/餐饮向","phone":"010-58756666","phoneNote":"官网可见","tip":"问能否接 10 桌婚宴","cluster":"副中心/万盛西","why":"电话稳的机动备胎","styleFit":"western","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"万盛南街近万盛西枢纽估算","existence":"confirmed","verifyLabel":"已核实·官网","verifyNote":"万达锦华官网：万盛南街102号；前台010-58756666。偏会议/住宿，婚宴需另询；部分媒体称2026全面运营。","sources":[{"name":"酒店官网","url":"https://www.wandajinbeijing.cn/","note":"地址与电话"}],"verifiedAt":"2026-09-19"},{"id":"hampton","priority":3,"name":"运河商务区希尔顿欢朋","addr":"新华东街126号","lat":39.905222,"lng":116.692027,"price":"会议向，婚宴待询","priceMid":3800,"tables":"会议约 300 人级≠成熟婚宴","phone":"010-80881866","phoneNote":"官网可见","tip":"仅档期备胎","cluster":"运河商务区","why":"电话可信","styleFit":"western","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"新华东街近北运河西","existence":"confirmed","verifyLabel":"已核实·品牌官网","verifyNote":"希尔顿欢朋官网：新华东街126号；010-80881866。会议型，婚宴能力待询。","sources":[{"name":"Hilton官网","url":"https://hampton.hilton.com.cn/zh-cn/hotel/beijing/pekbxhx-hampton-beijing-yunhe-business-district/index.html","note":"地址电话"}],"verifiedAt":"2026-09-19"},{"id":"henghao","priority":3,"name":"北京恒豪酒店","addr":"物资学院路3号院30号楼（物资学院正门南侧约200米路西）","lat":39.897914,"lng":116.703134,"price":"约 1388–2688/桌","priceMid":2000,"tables":"约 3–28 桌","phone":"待核实","phoneNote":"待核实","tip":"确认准确地址与国庆档","cluster":"拓展圈","why":"普通规格拓展池","styleFit":"both","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"通州拓展池","existence":"platform_only","verifyLabel":"仅平台·地址已校准","verifyNote":"婚礼猫给出物资学院路具体门牌；种子原「通州婚礼猫」过粗已改正。仍缺官网。","sources":[{"name":"婚礼猫","url":"http://bj.hunlimao.com/hotels_P1-C252-D261-c2-p1-t6","note":"物资学院路门牌"}],"verifiedAt":"2026-09-19"},{"id":"dayali","priority":2,"name":"大鸭梨烤鸭店（土桥店）","addr":"梨园镇砖厂南里40号楼华远好天地2楼","lat":39.871735,"lng":116.699487,"price":"宴会价待询（会场约450㎡线索）","priceMid":2400,"tables":"会议/宴会向，约可二百人级","phone":"待核实","phoneNote":"待核实","tip":"问是否承接婚宴8–10桌及独立区","cluster":"土桥拓展","why":"临近土桥，拓展供给","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"土桥/华远好天地一带，锚点校准","existence":"likely","verifyLabel":"较可信·餐厅存在","verifyNote":"会小二有土桥华远好天地店址。烤鸭店宴会承接婚宴与否需当面确认。","sources":[{"name":"会小二","url":"https://www.huixiaoer.com/view/weizhi-824770931376","note":"砖厂南里华远好天地2楼"}],"verifiedAt":"2026-09-19"},{"id":"geya","priority":3,"name":"格雅酒店（环球梨园店）","addr":"梨园东里2号","lat":39.877672,"lng":116.689906,"price":"会议向，婚宴待询","priceMid":2800,"tables":"小会议厅为主，婚宴能力待验证","phone":"待核实","phoneNote":"待核实","tip":"先确认有无宴会餐饮包场","cluster":"临河里/梨园东","why":"住宿配套机动","styleFit":"both","coordSys":"GCJ-02","accuracy":"calibrated","geoNote":"梨园东里，距临河里约1.2km","existence":"likely","verifyLabel":"较可信·住宿酒店","verifyNote":"会小二：梨园东里2号格雅。小会议厅为主，婚宴能力弱。","sources":[{"name":"会小二","url":"https://www.huixiaoer.com/beijing/dizhi-86103090","note":"环球梨园店"}],"verifiedAt":"2026-09-19"},{"id":"crowne","priority":3,"name":"通州皇冠假日酒店","addr":"京彩街35号（近群芳站）","lat":39.906448,"lng":116.713673,"price":"五星会议餐标偏高，待询婚宴","priceMid":5500,"tables":"会议厅多，婚宴需专项询价","phone":"010-60586666","phoneNote":"官网页前台/餐饮会议号","tip":"可能超普通规格预算，仅作对照","cluster":"副中心拓展","why":"品牌对照样本","styleFit":"western","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"京彩街/群芳一带对照","existence":"confirmed","verifyLabel":"已核实·官网","verifyNote":"皇冠假日官网：京彩街35号；餐饮会议电话可见。五星会议向，可能超普通规格预算。","sources":[{"name":"酒店官网","url":"https://big5.crowneplazabeijingtongzhou.cn/","note":"京彩街35号"}],"verifiedAt":"2026-09-19"},{"id":"yunhewan","priority":3,"name":"运河湾生态园","addr":"张家湾镇张凤路15号（东亚铝业对面）","lat":39.861111,"lng":116.718994,"price":"约 1288–2888/桌","priceMid":2000,"tables":"约 3–50 桌","phone":"待核实","phoneNote":"待核实","tip":"测距；偏远需确认宾客通勤","cluster":"张家湾拓展","why":"低餐标生态园选项","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"张家湾张凤路拓展","existence":"platform_only","verifyLabel":"仅平台·偏远","verifyNote":"婚礼猫：张家湾张凤路15号。无官网交叉。","sources":[{"name":"婚礼猫","url":"http://bj.hunlimao.com/hotel/762","note":"张凤路15号"}],"verifiedAt":"2026-09-19"},{"id":"xinghu","priority":3,"name":"星湖园华夏婚礼中心","addr":"台湖镇台湖村铺大路与张台路交汇处","lat":39.843145,"lng":116.688562,"price":"约 1988–2888/桌","priceMid":2400,"tables":"约 3–60 桌","phone":"待核实","phoneNote":"待核实","tip":"多半>8km，仅主池不足时看","cluster":"台湖拓展","why":"婚礼中心形态","styleFit":"both","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"台湖拓展","existence":"platform_only","verifyLabel":"仅平台·偏远","verifyNote":"婚礼猫：台湖铺大路与张台路交汇。多半>8km。","sources":[{"name":"婚礼猫","url":"http://bj.hunlimao.com/hotel/4539","note":"台湖地址"}],"verifiedAt":"2026-09-19"},{"id":"sanle","priority":3,"name":"三乐宴会中心","addr":"马驹桥陈各庄三乐公寓对面","lat":39.834215,"lng":116.580826,"price":"约 1680–3280/桌","priceMid":2400,"tables":"约 3–120 桌，层高宣传高","phone":"待核实","phoneNote":"待核实","tip":"距离远；仪式硬件可能好","cluster":"马驹桥拓展","why":"大层高宴会对照","styleFit":"both","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"马驹桥拓展，距圆心较远","existence":"platform_only","verifyLabel":"仅平台·偏远","verifyNote":"婚庆网/婚礼猫：马驹桥陈各庄。距圆心远。","sources":[{"name":"婚庆网","url":"https://t18600055718.wed.hunzha.com/company/introduce/","note":"层高宣传"},{"name":"婚礼猫列表","url":"http://bj.hunlimao.com/hotels_P1-C252-D261-c2-p3-n2-t6","note":"1680–3280/桌"}],"verifiedAt":"2026-09-19"},{"id":"jinshitan","priority":3,"name":"金石滩","addr":"永顺龙旺庄京哈高速耿庄出口（近珠江国际城）","lat":39.889012,"lng":116.647554,"price":"约 1288–2888/桌","priceMid":2000,"tables":"待确认","phone":"待核实","phoneNote":"待核实","tip":"确认准确门牌与国庆档","cluster":"拓展圈","why":"普通档补充","styleFit":"chinese","coordSys":"GCJ-02","accuracy":"approximate","geoNote":"通州拓展","existence":"platform_only","verifyLabel":"仅平台·地址已校准","verifyNote":"婚礼猫：永顺龙旺庄京哈高速耿庄出口（近珠江国际城）。原种子「通州婚礼猫」过粗已改正；非大连金石滩。","sources":[{"name":"婚礼猫","url":"http://bj.hunlimao.com/hotel/5422","note":"龙旺庄具体方位"}],"verifiedAt":"2026-09-19"}],"coordSys":"GCJ-02","anchors":[{"id":"metro_liyuan","name":"地铁梨园站","lat":39.883622,"lng":116.668626,"accuracy":"verified","src":"Wikipedia/OSM WGS→GCJ"},{"id":"metro_linheli","name":"地铁临河里站","lat":39.875426,"lng":116.678786,"accuracy":"verified","src":"OSM WGS→GCJ"},{"id":"metro_jiukeshu","name":"地铁九棵树站","lat":39.890257,"lng":116.657492,"accuracy":"verified","src":"OSM WGS→GCJ"},{"id":"metro_tuqiao","name":"地铁土桥站","lat":39.871891,"lng":116.686221,"accuracy":"verified","src":"OSM WGS→GCJ"}],"verifyMeta":{"checkedAt":"2026-09-19","method":"多源公开检索：官网/百科/工商黄页/会小二/婚礼猫/婚庆网/婚礼纪；OSM Overpass 梨园周边仅稳定命中亚太花园酒店。","legend":{"confirmed":"≥2类独立强源（官网/百科/品牌）","likely":"平台+工商或百科交叉","platform_only":"主要仅婚礼聚合页，缺实地/官网","suspect":"旧名与现址主体冲突或高概率停业/更名"}}}</script>
 <script>
 const SEED = JSON.parse(document.getElementById('SEED').textContent);
-const STORE = 'wedding-board-v4';
+const STORE = 'wedding-board-v5';
 const COLS = [
   {key:'todo',title:'待拨打'},{key:'callback',title:'回拨/半份'},{key:'valid',title:'有效询价'},
   {key:'visit',title:'已约看厅'},{key:'primary',title:'主选'},{key:'backup',title:'备选'},{key:'out',title:'淘汰'}
@@ -200,12 +213,23 @@ function statusTitle(k){return (COLS.find(c=>c.key===k)||{}).title||k}
 
 let state=load();
 if(!state.hotels) state.hotels=JSON.parse(JSON.stringify(SEED.hotels));
+else{
+  /* 合并种子真伪字段到本地名单，保留用户状态/笔记 */
+  var byId={}; SEED.hotels.forEach(function(h){byId[h.id]=h});
+  state.hotels.forEach(function(h){
+    var s=byId[h.id]; if(!s) return;
+    ['existence','verifyLabel','verifyNote','sources','verifiedAt','addr','phone','phoneNote','priority'].forEach(function(k){
+      if(typeof s[k]!=='undefined') h[k]=s[k];
+    });
+  });
+}
 if(!state.status) state.status={};
 state.hotels.forEach(h=>{if(!state.status[h.id]) state.status[h.id]='todo'});
 if(!state.goals) state.goals={}; if(!state.notes) state.notes={}; if(!state.compare) state.compare=[]; if(!state.tree) state.tree={}; if(!state.calls) state.calls={}; if(!state.manual) state.manual={};
 if(!state.scriptBase) state.scriptBase=SCRIPT.replace(/\\n/g,'\n');
 if(!state.scriptByHotel) state.scriptByHotel={};
 if(typeof state.scriptExpanded==='undefined') state.scriptExpanded=false;
+state.seedVersion=SEED.version;
 save(state);
 
 const CENTER=SEED.center;
@@ -248,8 +272,24 @@ function rebuildMarkers(){
   rebuildAnchors();
   applyFilter();
 }
+function existenceLabel(e){
+  return e==='confirmed'?'已核实':e==='likely'?'较可信':e==='suspect'?'存疑':e==='platform_only'?'仅平台':'未核';
+}
+function verifyBadge(h){
+  var e=h.existence||'platform_only';
+  return '<span class="verify '+e+'">'+(h.verifyLabel||existenceLabel(e))+'</span>';
+}
+function sourcesHtml(h){
+  var list=h.sources||[];
+  if(!list.length) return '<div class="sources"><b>来源</b>暂无公开交叉来源</div>';
+  return '<div class="sources"><b>来源注释 · '+(h.verifiedAt||'')+'</b>'+
+    (h.verifyNote?'<div style="margin:4px 0 6px;color:#4b5d78">'+escHtml(h.verifyNote)+'</div>':'')+
+    '<ul>'+list.map(function(s){
+      return '<li><a href="'+escAttr(s.url)+'" target="_blank" rel="noopener">'+escHtml(s.name)+'</a>'+(s.note?' — '+escHtml(s.note):'')+'</li>';
+    }).join('')+'</ul></div>';
+}
 function visible(h){
-  if(q && !(h.name+h.cluster+h.addr).includes(q)) return false;
+  if(q && !(h.name+h.cluster+h.addr+(h.verifyLabel||'')).includes(q)) return false;
   if(filter==='all')return true;
   if(filter==='p1')return h.priority===1;
   if(filter==='p2')return h.priority===2;
@@ -258,6 +298,8 @@ function visible(h){
   if(filter==='r8')return h.band==='r8';
   if(filter==='todo')return state.status[h.id]==='todo';
   if(filter==='valid')return ['valid','visit','primary','backup'].includes(state.status[h.id]);
+  if(filter==='v_ok')return h.existence==='confirmed'||h.existence==='likely';
+  if(filter==='v_weak')return h.existence==='platform_only'||h.existence==='suspect';
   return true;
 }
 function applyFilter(){
@@ -281,6 +323,7 @@ function scoreHotel(h){
   if(h.priceMid>=2200&&h.priceMid<=3200) s+=12; else if(h.priceMid<2200) s+=6; else if(h.priceMid>4500) s-=8;
   if(!String(h.phone).startsWith('待')) s+=5;
   if(state.notes[h.id]) s+=3;
+  if(h.existence==='confirmed') s+=10; else if(h.existence==='likely') s+=5; else if(h.existence==='platform_only') s-=8; else if(h.existence==='suspect') s-=20;
   return Math.max(0,Math.min(100,s));
 }
 
@@ -288,10 +331,12 @@ function renderStats(){
   const c={}; COLS.forEach(x=>c[x.key]=0);
   state.hotels.forEach(h=>{c[state.status[h.id]]=(c[state.status[h.id]]||0)+1});
   const r5=state.hotels.filter(h=>h.band==='r5').length;
+  const vok=state.hotels.filter(h=>h.existence==='confirmed'||h.existence==='likely').length;
+  const vweak=state.hotels.filter(h=>h.existence==='platform_only'||h.existence==='suspect').length;
   document.getElementById('stats').innerHTML=
     '<div class="stat"><div class="n">'+(c.todo||0)+'</div><div class="l">待拨打</div></div>'+
     '<div class="stat"><div class="n">'+((c.valid||0)+(c.visit||0))+'</div><div class="l">有效/约看</div></div>'+
-    '<div class="stat"><div class="n">'+(c.primary||0)+'/'+(c.backup||0)+'</div><div class="l">主选/备选</div></div>'+
+    '<div class="stat"><div class="n">'+vok+'/'+vweak+'</div><div class="l">可信/弱源</div></div>'+
     '<div class="stat"><div class="n">'+r5+'</div><div class="l">≤5km</div></div>';
 }
 function renderKanban(){
@@ -300,7 +345,7 @@ function renderKanban(){
     return '<div class="col" ondragover="event.preventDefault()" ondrop="onDrop(event,\''+col.key+'\')"><div class="col-t"><span>'+col.title+'</span><span>'+items.length+'</span></div>'+
       items.map(function(h){
         return '<div class="k '+(selectedId===h.id?'active':'')+'" draggable="true" ondragstart="onDrag(event,\''+h.id+'\')" onclick="selectHotel(\''+h.id+'\',true)">'+
-          '<div class="n">'+h.priority+'. '+h.name+'</div><div class="s">'+h.distKm.toFixed(1)+'km · 分<span class="score">'+scoreHotel(h)+'</span></div></div>';
+          '<div class="n">'+h.priority+'. '+h.name+' '+verifyBadge(h)+'</div><div class="s">'+h.distKm.toFixed(1)+'km · 分<span class="score">'+scoreHotel(h)+'</span></div></div>';
       }).join('')+'</div>';
   }).join('');
 }
@@ -316,10 +361,11 @@ function renderList(){
     var acc=' · '+accuracyLabel(h.accuracy||'approximate');
     html+='<div class="hotel '+(selectedId===h.id?'selected':'')+(open?' open':'')+'" id="card-'+h.id+'">'+
       '<div class="head" onclick="toggleCard(\''+h.id+'\')">'+
-        '<div><h3>'+h.name+'</h3><div class="rows"><b>'+h.distKm.toFixed(1)+'km</b> · '+h.cluster+warn+' · '+statusTitle(state.status[h.id])+' · 分<span class="score">'+scoreHotel(h)+'</span></div></div>'+
+        '<div><h3>'+h.name+' '+verifyBadge(h)+'</h3><div class="rows"><b>'+h.distKm.toFixed(1)+'km</b> · '+h.cluster+warn+' · '+statusTitle(state.status[h.id])+' · 分<span class="score">'+scoreHotel(h)+'</span></div></div>'+
         '<span class="badge p'+h.priority+'">P'+h.priority+'</span></div>'+
       '<div class="body">'+
         '<div class="rows">'+h.addr+'<br/>'+h.price+' · '+h.tables+'<br/>电话：<b>'+h.phone+'</b>（'+h.phoneNote+'）<br/>'+h.why+'</div>'+
+        sourcesHtml(h)+
         '<div class="bar">'+
           '<label class="check" style="margin:0" onclick="event.stopPropagation()"><input type="checkbox" '+ck+' onchange="toggleCompare(\''+h.id+'\',this.checked)"/>对比</label>'+
           (String(h.phone).indexOf('待')===0?'':'<a class="btn primary" href="tel:'+String(h.phone).replace(/-/g,'')+'" onclick="event.stopPropagation()">拨打</a>')+
@@ -375,23 +421,53 @@ function renderCompare(){
   box.innerHTML='<table class="cmp">'+rows.map(function(r){return '<tr><th>'+r[0]+'</th>'+list.map(function(h){return '<td>'+r[1](h)+'</td>'}).join('')+'</tr>'}).join('')+'</table>';
 }
 
+function defaultScriptFor(h){
+  return (state.scriptBase||SCRIPT.replace(/\\n/g,'\n'))+'\n\n【微调】'+h.tip;
+}
+function getScriptText(id){
+  var h=state.hotels.find(function(x){return x.id===id});
+  if(!h) return state.scriptBase||'';
+  if(state.scriptByHotel[id]) return state.scriptByHotel[id];
+  return defaultScriptFor(h);
+}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
 function renderDetail(){
   var h=state.hotels.find(function(x){return x.id===selectedId});
   document.getElementById('syncHint').textContent=h?h.name:'未选择';
   if(!h){document.getElementById('detail').textContent='点击酒店卡片展开详情';return}
   var tel=String(h.phone).indexOf('待')===0?'<button class="btn" disabled>电话待核实</button>':'<a class="btn primary" href="tel:'+String(h.phone).replace(/-/g,'')+'">拨打 '+h.phone+'</a>';
+  var txt=getScriptText(h.id);
+  var customized=!!state.scriptByHotel[h.id];
+  var open=!!state.scriptExpanded;
   document.getElementById('detail').innerHTML=
-    '<div style="font-family:ZCOOL XiaoWei,serif;font-size:1.15rem">'+h.name+'</div>'+
+    '<div style="font-family:ZCOOL XiaoWei,serif;font-size:1.15rem">'+h.name+' '+verifyBadge(h)+'</div>'+
     '<div class="rows">'+h.addr+'<br/><b>'+h.distKm.toFixed(1)+' km</b> · '+h.band+' · '+accuracyLabel(h.accuracy||'approximate')+' · GCJ-02 · 综合分 <span class="score">'+scoreHotel(h)+'</span><br/>'+
     h.price+' · 中位 '+h.priceMid+'<br/>'+h.tables+'<br/>状态：<b>'+statusTitle(state.status[h.id])+'</b><br/>'+h.why+'<br/>微调：'+h.tip+
     (state.manual[h.id]?'<br/>上次手动更新：'+state.manual[h.id].at:'')+'</div>'+
+    sourcesHtml(h)+
     '<div class="bar">'+tel+
       '<button class="btn" onclick="copyScript(\''+h.id+'\')">复制话术</button>'+
       '<button class="btn" onclick="setStatus(\''+h.id+'\',\'callback\')">回拨</button>'+
       '<button class="btn" onclick="setStatus(\''+h.id+'\',\'visit\')">约看</button>'+
       '<button class="btn" onclick="setStatus(\''+h.id+'\',\'primary\')">主选</button>'+
       '<button class="btn" onclick="setStatus(\''+h.id+'\',\'backup\')">备选</button></div>'+
-    '<div class="script" style="margin-top:8px">'+(SCRIPT.replace(/\\n/g,'\n'))+'\n\n【微调】'+h.tip+'</div>';
+    '<div class="script-wrap'+(open?' open':'')+'" id="scriptWrap">'+
+      '<div class="script-head" onclick="toggleScriptExpand()">'+
+        '<span class="ttl">询价话术 · '+(open?'点击收起':'点击展开编辑')+'</span>'+
+        '<span class="meta">'+(customized?'已定制':'默认')+(open?' · 可编辑':'')+'</span>'+
+      '</div>'+
+      '<div class="script-preview">'+escHtml(txt)+'</div>'+
+      '<div class="script-body">'+
+        '<textarea id="scriptEditor" rows="10">'+escHtml(txt)+'</textarea>'+
+        '<div class="script-actions">'+
+          '<button class="btn primary" type="button" onclick="saveScriptEdit(\''+h.id+'\')">保存本店话术</button>'+
+          '<button class="btn" type="button" onclick="saveScriptAsBase(\''+h.id+'\')">设为全局默认</button>'+
+          '<button class="btn" type="button" onclick="resetScriptEdit(\''+h.id+'\')">恢复默认</button>'+
+          '<button class="btn" type="button" onclick="copyScript(\''+h.id+'\')">复制</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
 }
 
 function selectHotel(id, openCard){
@@ -403,9 +479,43 @@ function selectHotel(id, openCard){
   var el=document.getElementById('card-'+id); if(el) el.scrollIntoView({block:'nearest',behavior:'smooth'});
 }
 window.selectHotel=selectHotel;
+window.toggleScriptExpand=function(){
+  state.scriptExpanded=!state.scriptExpanded;
+  save(state);
+  renderDetail();
+};
+window.saveScriptEdit=function(id){
+  var ta=document.getElementById('scriptEditor');
+  if(!ta) return;
+  var v=ta.value.trim();
+  if(!v){toast('话术不能为空');return}
+  state.scriptByHotel[id]=v;
+  save(state);
+  toast('已保存本店话术');
+  renderDetail();
+};
+window.saveScriptAsBase=function(id){
+  var ta=document.getElementById('scriptEditor');
+  var v=(ta?ta.value:getScriptText(id)).trim();
+  if(!v){toast('话术不能为空');return}
+  state.scriptBase=v;
+  delete state.scriptByHotel[id];
+  save(state);
+  toast('已设为全局默认');
+  renderDetail();
+};
+window.resetScriptEdit=function(id){
+  delete state.scriptByHotel[id];
+  save(state);
+  toast('已恢复默认');
+  renderDetail();
+};
 window.copyScript=async function(id){
   var h=state.hotels.find(function(x){return x.id===id});
-  var t=(SCRIPT.replace(/\\n/g,'\n'))+'\n\n【微调】'+h.tip+'\n【电话】'+h.phone;
+  if(!h) return;
+  var ta=document.getElementById('scriptEditor');
+  var body=(ta&&state.scriptExpanded)?ta.value:getScriptText(id);
+  var t=body+'\n【电话】'+h.phone;
   try{await navigator.clipboard.writeText(t);toast('已复制')}catch(e){toast('复制失败')}
 };
 
@@ -459,12 +569,12 @@ function renderReport(){
   var html='<p><b>圆心</b>：新通国际花园 · <b>日期</b>：2027-10-01 · <b>规模</b>：8–10桌 · <b>生成</b>：'+new Date().toLocaleString('zh-CN')+'</p>';
   html+='<p>主选：'+(state.hotels.filter(function(h){return state.status[h.id]==='primary'}).map(function(h){return h.name}).join('、')||'未定')+
     '　备选：'+(state.hotels.filter(function(h){return state.status[h.id]==='backup'}).map(function(h){return h.name}).join('、')||'未定')+'</p>';
-  html+='<table class="rep"><tr><th>#</th><th>场地</th><th>分</th><th>距离</th><th>餐标/中位</th><th>状态</th><th>电话</th><th>笔记摘要</th></tr>';
+  html+='<table class="rep"><tr><th>#</th><th>场地</th><th>分</th><th>真伪</th><th>距离</th><th>餐标/中位</th><th>状态</th><th>电话</th><th>笔记摘要</th></tr>';
   top.forEach(function(r,i){
-    html+='<tr><td>'+(i+1)+'</td><td>'+r.h.name+'</td><td>'+r.score+'</td><td>'+r.h.distKm.toFixed(1)+'km</td><td>'+r.h.price+' / '+r.h.priceMid+'</td><td>'+statusTitle(r.st)+'</td><td>'+r.h.phone+'</td><td>'+escText((r.note||'').slice(0,40))+'</td></tr>';
+    html+='<tr><td>'+(i+1)+'</td><td>'+r.h.name+'</td><td>'+r.score+'</td><td>'+existenceLabel(r.h.existence)+'</td><td>'+r.h.distKm.toFixed(1)+'km</td><td>'+r.h.price+' / '+r.h.priceMid+'</td><td>'+statusTitle(r.st)+'</td><td>'+r.h.phone+'</td><td>'+escText((r.note||'').slice(0,40))+'</td></tr>';
   });
   html+='</table>';
-  html+='<p class="foot">评分启发式：距离+优先级+状态+餐标带+电话可信度。平台展示价≠成交价。</p>';
+  html+='<p class="foot">评分含真伪奖惩：已核实优先；仅平台/存疑降权。平台展示价≠成交价。核验日 '+((SEED.verifyMeta&&SEED.verifyMeta.checkedAt)||'')+'。</p>';
   document.getElementById('reportBody').innerHTML=html;
   return {rows:top, html:html};
 }
@@ -480,16 +590,17 @@ function exportWord(){
     '<p>备选：'+(backup.map(function(h){return h.name}).join('、')||'尚未指定')+'</p>'+
     '<h2>二、可比排名（综合分）</h2>'+
     '<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;width:100%">'+
-    '<tr style="background:#f3efe6"><th>排名</th><th>场地</th><th>综合分</th><th>距离</th><th>圈层</th><th>公开餐标</th><th>中位估</th><th>状态</th><th>电话</th><th>商圈</th></tr>'+
+    '<tr style="background:#f3efe6"><th>排名</th><th>场地</th><th>综合分</th><th>真伪</th><th>距离</th><th>圈层</th><th>公开餐标</th><th>中位估</th><th>状态</th><th>电话</th><th>商圈</th></tr>'+
     rep.rows.map(function(r,i){
-      return '<tr><td>'+(i+1)+'</td><td>'+r.h.name+'</td><td>'+r.score+'</td><td>'+r.h.distKm.toFixed(1)+' km</td><td>'+r.h.band+'</td><td>'+r.h.price+'</td><td>'+r.h.priceMid+'</td><td>'+statusTitle(r.st)+'</td><td>'+r.h.phone+'</td><td>'+r.h.cluster+'</td></tr>';
+      return '<tr><td>'+(i+1)+'</td><td>'+r.h.name+'</td><td>'+r.score+'</td><td>'+existenceLabel(r.h.existence)+'</td><td>'+r.h.distKm.toFixed(1)+' km</td><td>'+r.h.band+'</td><td>'+r.h.price+'</td><td>'+r.h.priceMid+'</td><td>'+statusTitle(r.st)+'</td><td>'+r.h.phone+'</td><td>'+r.h.cluster+'</td></tr>';
     }).join('')+'</table>'+
-    '<h2>三、逐家要点</h2>'+
+    '<h2>三、逐家要点与来源</h2>'+
     rep.rows.map(function(r){
-      return '<h3>'+r.h.name+'</h3><p>地址：'+r.h.addr+'<br/>为何入围：'+r.h.why+'<br/>微调话术：'+r.h.tip+'<br/>笔记：'+(r.note||'（无）')+'</p>';
+      var src=(r.h.sources||[]).map(function(s){return s.name+(s.url?(' '+s.url):'')+(s.note?(' — '+s.note):'')}).join('；');
+      return '<h3>'+r.h.name+'（'+existenceLabel(r.h.existence)+'）</h3><p>地址：'+r.h.addr+'<br/>核验：'+(r.h.verifyNote||'')+'<br/>来源：'+(src||'无')+'<br/>为何入围：'+r.h.why+'<br/>微调话术：'+r.h.tip+'<br/>笔记：'+(r.note||'（无）')+'</p>';
     }).join('')+
     '<h2>四、决策树当前选择</h2><pre>'+JSON.stringify(state.tree,null,2)+'</pre>'+
-    '<h2>五、声明</h2><p>餐标来自公开平台展示价与手动更新，不等于2027国庆成交价。坐标为 GCJ-02（高德系）；已核实/已校准点可直接对照，近似点签约前请用高德驾车复核。本报告由婚礼决策看板自动生成。</p>';
+    '<h2>五、声明</h2><p>餐标来自公开平台展示价与手动更新，不等于2027国庆成交价。坐标为 GCJ-02（高德系）。真伪核验基于公开多源交叉（'+((SEED.verifyMeta&&SEED.verifyMeta.checkedAt)||'')+'），仅平台/存疑条目须实地确认。本报告由婚礼决策看板自动生成。</p>';
   var doc='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>场地可比报告</title>'+
     '<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View></w:WordDocument></xml><![endif]-->'+
     '<style>body{font-family:宋体,SimSun,sans-serif;font-size:12pt}h1{font-size:18pt}h2{font-size:14pt;margin-top:16pt}table{font-size:10pt}</style></head><body>'+body+'</body></html>';
