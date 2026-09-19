@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "center": {
     "id": "xintong",
     "name": "新通国际花园",
@@ -33,7 +33,28 @@
       "styleFit": "both",
       "coordSys": "GCJ-02",
       "accuracy": "verified",
-      "geoNote": "OSM way 亚太花园酒店 → WGS 转 GCJ-02"
+      "geoNote": "OSM way 亚太花园酒店 → WGS 转 GCJ-02",
+      "existence": "confirmed",
+      "verifyLabel": "已核实·多源",
+      "verifyNote": "官网+百度百科+北京旅游网一致：玉桥西路103号；餐饮会议电话010-81528822。",
+      "sources": [
+        {
+          "name": "酒店官网",
+          "url": "https://www.beijingasiapacific.cn/",
+          "note": "地址与四星信息"
+        },
+        {
+          "name": "百度百科",
+          "url": "https://baike.baidu.com/item/北京亚太花园酒店/4713753",
+          "note": "通州玉桥西路"
+        },
+        {
+          "name": "北京旅游网",
+          "url": "https://s.visitbeijing.com.cn/index.php/hotel/40101167",
+          "note": "通州店介绍"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "aifeier",
@@ -53,11 +74,32 @@
       "styleFit": "western",
       "coordSys": "GCJ-02",
       "accuracy": "calibrated",
-      "geoNote": "临河里站东南约450m，对齐公开步行距离"
+      "geoNote": "临河里站东南约450m，对齐公开步行距离",
+      "existence": "confirmed",
+      "verifyLabel": "已核实·多源",
+      "verifyNote": "会小二场地页+品牌介绍页（2026更新）一致：梨园南街328-3号；电话15910738779。",
+      "sources": [
+        {
+          "name": "会小二",
+          "url": "https://www.huixiaoer.com/view/hotel-86199132",
+          "note": "地址/厅型"
+        },
+        {
+          "name": "品牌页(2026-08)",
+          "url": "http://aifeier.m.pinsowang.com/",
+          "note": "电话与地址"
+        },
+        {
+          "name": "企业介绍",
+          "url": "https://www.okmart.com/qynews/article/222928.html",
+          "note": "临河里站"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "shengshi",
-      "priority": 1,
+      "priority": 3,
       "name": "盛世家宴",
       "addr": "梨园南街326号",
       "lat": 39.872911,
@@ -73,7 +115,28 @@
       "styleFit": "both",
       "coordSys": "GCJ-02",
       "accuracy": "calibrated",
-      "geoNote": "梨园南街326，邻328号段"
+      "geoNote": "梨园南街326，邻328号段",
+      "existence": "suspect",
+      "verifyLabel": "存疑·或已更名/停业",
+      "verifyNote": "婚礼平台/易企秀仍有「盛世家宴·梨园南街326」旧页；同址工商现为云中蜀歌、十三嘉等餐饮主体，未见现营「盛世家宴」官网。拨打前务必确认招牌。",
+      "sources": [
+        {
+          "name": "易企秀H5",
+          "url": "https://show.eqxiu.com/s/corhJGrx",
+          "note": "旧宣传·010-81591055"
+        },
+        {
+          "name": "婚庆网2019",
+          "url": "https://www.hunzha.com/hotel/201906/159.shtml",
+          "note": "最后更新偏旧"
+        },
+        {
+          "name": "黄页·同址他司",
+          "url": "https://www.yellowurl.cn/78780836.html",
+          "note": "326号1层现登记其他餐饮公司"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "lanpai",
@@ -86,14 +149,35 @@
       "priceMid": 3500,
       "tables": "一站式婚礼堂",
       "phone": "待核实",
-      "phoneNote": "待核实",
+      "phoneNote": "婚礼猫仅显400，勿当门店直拨",
       "tip": "先测距；问强制打包婚庆否",
       "cluster": "荔景/武夷边缘",
       "why": "简约西式友好",
       "styleFit": "western",
       "coordSys": "GCJ-02",
       "accuracy": "approximate",
-      "geoNote": "荔景/紫运西里，相对梨园站北向估算"
+      "geoNote": "荔景/紫运西里，相对梨园站北向估算",
+      "existence": "likely",
+      "verifyLabel": "较可信·平台+工商",
+      "verifyNote": "婚礼猫/会掌柜地址荔景紫运西里；工商「蓝派之恋紫运婚礼文化」注册紫运西里23号楼。电话多为平台400，门店直拨待核。",
+      "sources": [
+        {
+          "name": "婚礼猫",
+          "url": "http://bj.hunlimao.com/hotel/4540",
+          "note": "紫运西里22栋"
+        },
+        {
+          "name": "会掌柜",
+          "url": "https://beijing.huizone.com/changdi/hall-186563.html",
+          "note": "厅型"
+        },
+        {
+          "name": "公司招聘页",
+          "url": "https://dianzhangzhipin.com/company/1X1z0t20.html",
+          "note": "注册紫运西里23号楼"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "wanlongzhou",
@@ -113,7 +197,23 @@
       "styleFit": "chinese",
       "coordSys": "GCJ-02",
       "accuracy": "calibrated",
-      "geoNote": "九棵树东路京贸新干线，临河里北侧"
+      "geoNote": "九棵树东路京贸新干线，临河里北侧",
+      "existence": "likely",
+      "verifyLabel": "较可信·平台多源",
+      "verifyNote": "婚礼猫+婚庆网均指向九棵树东路386号京贸新干线。无官网直拨号，仅平台400。",
+      "sources": [
+        {
+          "name": "婚礼猫",
+          "url": "http://bj.hunlimao.com/hotel/5426",
+          "note": "地址与餐标"
+        },
+        {
+          "name": "婚庆网",
+          "url": "https://t01060515555.wed.hunzha.com/",
+          "note": "临河里站北口描述"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "nishi",
@@ -133,7 +233,28 @@
       "styleFit": "chinese",
       "coordSys": "GCJ-02",
       "accuracy": "calibrated",
-      "geoNote": "梨园南街红绿灯东北角近临河里"
+      "geoNote": "梨园南街红绿灯东北角近临河里",
+      "existence": "likely",
+      "verifyLabel": "较可信·百科+平台",
+      "verifyNote": "百度百科词条+婚礼猫：梨园南街红绿灯东北角。营业现状建议地图/点评复核。",
+      "sources": [
+        {
+          "name": "百度百科",
+          "url": "https://baike.baidu.com/item/倪氏海鲜大酒店（通州店）/14329788",
+          "note": "通州店简介"
+        },
+        {
+          "name": "婚礼猫列表",
+          "url": "http://bj.hunlimao.com/hotels_P1-C252-D261-c2-p1-n5-t4",
+          "note": "餐标区间"
+        },
+        {
+          "name": "婚庆网",
+          "url": "https://www.hunzha.com/hotel/201910/4159.shtml",
+          "note": "厅型描述"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "jinziyin",
@@ -153,7 +274,23 @@
       "styleFit": "chinese",
       "coordSys": "GCJ-02",
       "accuracy": "calibrated",
-      "geoNote": "梨园南小街红绿灯东北角"
+      "geoNote": "梨园南小街红绿灯东北角",
+      "existence": "platform_only",
+      "verifyLabel": "仅平台·待实地",
+      "verifyNote": "主要见于婚礼猫/婚庆网，地址「梨园南小街红绿灯东北角」。缺少官网与近期点评交叉，按待实地处理。",
+      "sources": [
+        {
+          "name": "婚礼猫",
+          "url": "http://bj.hunlimao.com/hotel/4550",
+          "note": "餐标1888–2888"
+        },
+        {
+          "name": "婚庆网2019",
+          "url": "https://www.hunzha.com/hotel/201906/377.shtml",
+          "note": "文案偏旧"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "shengfeng",
@@ -173,7 +310,28 @@
       "styleFit": "chinese",
       "coordSys": "GCJ-02",
       "accuracy": "calibrated",
-      "geoNote": "同京贸新干线商圈"
+      "geoNote": "同京贸新干线商圈",
+      "existence": "likely",
+      "verifyLabel": "较可信·工商+平台",
+      "verifyNote": "北京盛丰楼餐饮有限责任公司注册京贸新干线；婚礼猫有婚宴页。",
+      "sources": [
+        {
+          "name": "婚礼猫",
+          "url": "http://bj.hunlimao.com/hotel/4548",
+          "note": "地址与桌数"
+        },
+        {
+          "name": "公司信息",
+          "url": "https://www.wondercv.com/company/75c8dc14798e11ea.html",
+          "note": "工商注册同址"
+        },
+        {
+          "name": "婚庆网",
+          "url": "https://www.hunzha.com/hotel/201906/235.shtml",
+          "note": "厅型"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "jinlu",
@@ -193,7 +351,18 @@
       "styleFit": "chinese",
       "coordSys": "GCJ-02",
       "accuracy": "calibrated",
-      "geoNote": "梨园南街328，临河里A口步行约590m"
+      "geoNote": "梨园南街328，临河里A口步行约590m",
+      "existence": "platform_only",
+      "verifyLabel": "仅平台·或与邻店混淆",
+      "verifyNote": "婚礼纪有「锦炉梨园店·328号」；同街328-3为爱菲尔。可能更名/转租/列表残留，勿与爱菲尔混为一谈。",
+      "sources": [
+        {
+          "name": "婚礼纪",
+          "url": "https://hotel.hunliji.com/beijing/detail_4975227",
+          "note": "2188起·电话栏空"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "qingnian_yj",
@@ -213,7 +382,23 @@
       "styleFit": "chinese",
       "coordSys": "GCJ-02",
       "accuracy": "calibrated",
-      "geoNote": "云景东路，梨园站西侧"
+      "geoNote": "云景东路，梨园站西侧",
+      "existence": "likely",
+      "verifyLabel": "较可信·百科+平台",
+      "verifyNote": "百科「青年餐厅云景里店」云景东路52号；婚礼猫有婚宴套餐。",
+      "sources": [
+        {
+          "name": "百度百科",
+          "url": "https://baike.baidu.com/item/青年餐厅云景里店/14286440",
+          "note": "云景东路52号"
+        },
+        {
+          "name": "婚礼猫",
+          "url": "http://bj.hunlimao.com/hotel/4541",
+          "note": "餐标区间"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "qingnian_cp",
@@ -233,7 +418,23 @@
       "styleFit": "chinese",
       "coordSys": "GCJ-02",
       "accuracy": "approximate",
-      "geoNote": "翠屏北里，梨园西北"
+      "geoNote": "翠屏北里，梨园西北",
+      "existence": "platform_only",
+      "verifyLabel": "仅平台·待实地",
+      "verifyNote": "婚庆网有翠屏北里店介绍，缺官网/地图强交叉。",
+      "sources": [
+        {
+          "name": "婚庆网",
+          "url": "https://t01081517673.wed.hunzha.com/",
+          "note": "翠屏北里店"
+        },
+        {
+          "name": "婚庆网旧页",
+          "url": "https://m.hunzha.com/hotel/201906/138.shtml",
+          "note": "2019语境"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "yayuan",
@@ -253,13 +454,29 @@
       "styleFit": "both",
       "coordSys": "GCJ-02",
       "accuracy": "calibrated",
-      "geoNote": "九棵树站东约545m/果园环岛东"
+      "geoNote": "九棵树站东约545m/果园环岛东",
+      "existence": "likely",
+      "verifyLabel": "较可信·会议酒店",
+      "verifyNote": "会小二+工商：葛布店南里1号。会议向，婚宴承接能力未证实。",
+      "sources": [
+        {
+          "name": "会小二",
+          "url": "https://www.huixiaoer.com/view/hotel-86101772",
+          "note": "最大会场约450㎡"
+        },
+        {
+          "name": "工商黄页",
+          "url": "https://www.51fdd.com/bj/9906829.html",
+          "note": "公司地址一致"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "dongfang",
       "priority": 3,
       "name": "东方御宴大酒楼",
-      "addr": "嘉创二路甲2号一带（通州）",
+      "addr": "嘉创二路甲2号（近光机电一体化产业基地）",
       "lat": 39.870094,
       "lng": 116.695585,
       "price": "约 1000–3888/桌",
@@ -273,7 +490,18 @@
       "styleFit": "chinese",
       "coordSys": "GCJ-02",
       "accuracy": "approximate",
-      "geoNote": "嘉创二路一带拓展"
+      "geoNote": "嘉创二路一带拓展",
+      "existence": "platform_only",
+      "verifyLabel": "仅平台·偏远",
+      "verifyNote": "婚礼猫：嘉创二路甲2号。无官网交叉，距梨园远。",
+      "sources": [
+        {
+          "name": "婚礼猫",
+          "url": "http://bj.hunlimao.com/hotel/4544",
+          "note": "1000–3888/桌"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "jinhongdi",
@@ -293,13 +521,24 @@
       "styleFit": "chinese",
       "coordSys": "GCJ-02",
       "accuracy": "approximate",
-      "geoNote": "北寺北口拓展"
+      "geoNote": "北寺北口拓展",
+      "existence": "platform_only",
+      "verifyLabel": "仅平台·地址粗",
+      "verifyNote": "婚礼猫仅写「北寺北口」，门牌不清，易误导航。",
+      "sources": [
+        {
+          "name": "婚礼猫列表",
+          "url": "http://bj.hunlimao.com/hotels_P1-C252-D261-c2-p1-t6",
+          "note": "北寺北口"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "yunheyuan",
       "priority": 3,
       "name": "运河源酒店",
-      "addr": "通州区（公开榜单）",
+      "addr": "运河西大街172号（靠近玉桥中路）",
       "lat": 39.896118,
       "lng": 116.71016,
       "price": "约 888–2299/桌",
@@ -313,7 +552,23 @@
       "styleFit": "chinese",
       "coordSys": "GCJ-02",
       "accuracy": "approximate",
-      "geoNote": "运河沿线拓展"
+      "geoNote": "运河沿线拓展",
+      "existence": "likely",
+      "verifyLabel": "较可信·地址已校准",
+      "verifyNote": "婚礼猫/会小二指向运河西大街172号（非笼统「通州区」）。",
+      "sources": [
+        {
+          "name": "婚礼猫",
+          "url": "http://bj.hunlimao.com/hotel/4546",
+          "note": "运河西大街172号"
+        },
+        {
+          "name": "会小二邻页",
+          "url": "https://www.huixiaoer.com/beijing/dizhi-86103090",
+          "note": "运河源温泉酒店同街段"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "wanda",
@@ -333,7 +588,18 @@
       "styleFit": "western",
       "coordSys": "GCJ-02",
       "accuracy": "calibrated",
-      "geoNote": "万盛南街近万盛西枢纽估算"
+      "geoNote": "万盛南街近万盛西枢纽估算",
+      "existence": "confirmed",
+      "verifyLabel": "已核实·官网",
+      "verifyNote": "万达锦华官网：万盛南街102号；前台010-58756666。偏会议/住宿，婚宴需另询；部分媒体称2026全面运营。",
+      "sources": [
+        {
+          "name": "酒店官网",
+          "url": "https://www.wandajinbeijing.cn/",
+          "note": "地址与电话"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "hampton",
@@ -353,13 +619,24 @@
       "styleFit": "western",
       "coordSys": "GCJ-02",
       "accuracy": "calibrated",
-      "geoNote": "新华东街近北运河西"
+      "geoNote": "新华东街近北运河西",
+      "existence": "confirmed",
+      "verifyLabel": "已核实·品牌官网",
+      "verifyNote": "希尔顿欢朋官网：新华东街126号；010-80881866。会议型，婚宴能力待询。",
+      "sources": [
+        {
+          "name": "Hilton官网",
+          "url": "https://hampton.hilton.com.cn/zh-cn/hotel/beijing/pekbxhx-hampton-beijing-yunhe-business-district/index.html",
+          "note": "地址电话"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "henghao",
       "priority": 3,
       "name": "北京恒豪酒店",
-      "addr": "通州（婚礼猫列表）",
+      "addr": "物资学院路3号院30号楼（物资学院正门南侧约200米路西）",
       "lat": 39.897914,
       "lng": 116.703134,
       "price": "约 1388–2688/桌",
@@ -373,7 +650,18 @@
       "styleFit": "both",
       "coordSys": "GCJ-02",
       "accuracy": "approximate",
-      "geoNote": "通州拓展池"
+      "geoNote": "通州拓展池",
+      "existence": "platform_only",
+      "verifyLabel": "仅平台·地址已校准",
+      "verifyNote": "婚礼猫给出物资学院路具体门牌；种子原「通州婚礼猫」过粗已改正。仍缺官网。",
+      "sources": [
+        {
+          "name": "婚礼猫",
+          "url": "http://bj.hunlimao.com/hotels_P1-C252-D261-c2-p1-t6",
+          "note": "物资学院路门牌"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "dayali",
@@ -393,7 +681,18 @@
       "styleFit": "chinese",
       "coordSys": "GCJ-02",
       "accuracy": "calibrated",
-      "geoNote": "土桥/华远好天地一带，锚点校准"
+      "geoNote": "土桥/华远好天地一带，锚点校准",
+      "existence": "likely",
+      "verifyLabel": "较可信·餐厅存在",
+      "verifyNote": "会小二有土桥华远好天地店址。烤鸭店宴会承接婚宴与否需当面确认。",
+      "sources": [
+        {
+          "name": "会小二",
+          "url": "https://www.huixiaoer.com/view/weizhi-824770931376",
+          "note": "砖厂南里华远好天地2楼"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "geya",
@@ -413,7 +712,18 @@
       "styleFit": "both",
       "coordSys": "GCJ-02",
       "accuracy": "calibrated",
-      "geoNote": "梨园东里，距临河里约1.2km"
+      "geoNote": "梨园东里，距临河里约1.2km",
+      "existence": "likely",
+      "verifyLabel": "较可信·住宿酒店",
+      "verifyNote": "会小二：梨园东里2号格雅。小会议厅为主，婚宴能力弱。",
+      "sources": [
+        {
+          "name": "会小二",
+          "url": "https://www.huixiaoer.com/beijing/dizhi-86103090",
+          "note": "环球梨园店"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "crowne",
@@ -425,21 +735,32 @@
       "price": "五星会议餐标偏高，待询婚宴",
       "priceMid": 5500,
       "tables": "会议厅多，婚宴需专项询价",
-      "phone": "待核实",
-      "phoneNote": "待核实",
+      "phone": "010-60586666",
+      "phoneNote": "官网页前台/餐饮会议号",
       "tip": "可能超普通规格预算，仅作对照",
       "cluster": "副中心拓展",
       "why": "品牌对照样本",
       "styleFit": "western",
       "coordSys": "GCJ-02",
       "accuracy": "approximate",
-      "geoNote": "京彩街/群芳一带对照"
+      "geoNote": "京彩街/群芳一带对照",
+      "existence": "confirmed",
+      "verifyLabel": "已核实·官网",
+      "verifyNote": "皇冠假日官网：京彩街35号；餐饮会议电话可见。五星会议向，可能超普通规格预算。",
+      "sources": [
+        {
+          "name": "酒店官网",
+          "url": "https://big5.crowneplazabeijingtongzhou.cn/",
+          "note": "京彩街35号"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "yunhewan",
       "priority": 3,
       "name": "运河湾生态园",
-      "addr": "张家湾镇张凤路15号一带",
+      "addr": "张家湾镇张凤路15号（东亚铝业对面）",
       "lat": 39.861111,
       "lng": 116.718994,
       "price": "约 1288–2888/桌",
@@ -453,13 +774,24 @@
       "styleFit": "chinese",
       "coordSys": "GCJ-02",
       "accuracy": "approximate",
-      "geoNote": "张家湾张凤路拓展"
+      "geoNote": "张家湾张凤路拓展",
+      "existence": "platform_only",
+      "verifyLabel": "仅平台·偏远",
+      "verifyNote": "婚礼猫：张家湾张凤路15号。无官网交叉。",
+      "sources": [
+        {
+          "name": "婚礼猫",
+          "url": "http://bj.hunlimao.com/hotel/762",
+          "note": "张凤路15号"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "xinghu",
       "priority": 3,
       "name": "星湖园华夏婚礼中心",
-      "addr": "台湖镇铺大路与张台路交汇一带",
+      "addr": "台湖镇台湖村铺大路与张台路交汇处",
       "lat": 39.843145,
       "lng": 116.688562,
       "price": "约 1988–2888/桌",
@@ -473,13 +805,24 @@
       "styleFit": "both",
       "coordSys": "GCJ-02",
       "accuracy": "approximate",
-      "geoNote": "台湖拓展"
+      "geoNote": "台湖拓展",
+      "existence": "platform_only",
+      "verifyLabel": "仅平台·偏远",
+      "verifyNote": "婚礼猫：台湖铺大路与张台路交汇。多半>8km。",
+      "sources": [
+        {
+          "name": "婚礼猫",
+          "url": "http://bj.hunlimao.com/hotel/4539",
+          "note": "台湖地址"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "sanle",
       "priority": 3,
       "name": "三乐宴会中心",
-      "addr": "马驹桥陈各庄一带",
+      "addr": "马驹桥陈各庄三乐公寓对面",
       "lat": 39.834215,
       "lng": 116.580826,
       "price": "约 1680–3280/桌",
@@ -493,13 +836,29 @@
       "styleFit": "both",
       "coordSys": "GCJ-02",
       "accuracy": "approximate",
-      "geoNote": "马驹桥拓展，距圆心较远"
+      "geoNote": "马驹桥拓展，距圆心较远",
+      "existence": "platform_only",
+      "verifyLabel": "仅平台·偏远",
+      "verifyNote": "婚庆网/婚礼猫：马驹桥陈各庄。距圆心远。",
+      "sources": [
+        {
+          "name": "婚庆网",
+          "url": "https://t18600055718.wed.hunzha.com/company/introduce/",
+          "note": "层高宣传"
+        },
+        {
+          "name": "婚礼猫列表",
+          "url": "http://bj.hunlimao.com/hotels_P1-C252-D261-c2-p3-n2-t6",
+          "note": "1680–3280/桌"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     },
     {
       "id": "jinshitan",
       "priority": 3,
       "name": "金石滩",
-      "addr": "通州（婚礼猫列表）",
+      "addr": "永顺龙旺庄京哈高速耿庄出口（近珠江国际城）",
       "lat": 39.889012,
       "lng": 116.647554,
       "price": "约 1288–2888/桌",
@@ -513,7 +872,18 @@
       "styleFit": "chinese",
       "coordSys": "GCJ-02",
       "accuracy": "approximate",
-      "geoNote": "通州拓展"
+      "geoNote": "通州拓展",
+      "existence": "platform_only",
+      "verifyLabel": "仅平台·地址已校准",
+      "verifyNote": "婚礼猫：永顺龙旺庄京哈高速耿庄出口（近珠江国际城）。原种子「通州婚礼猫」过粗已改正；非大连金石滩。",
+      "sources": [
+        {
+          "name": "婚礼猫",
+          "url": "http://bj.hunlimao.com/hotel/5422",
+          "note": "龙旺庄具体方位"
+        }
+      ],
+      "verifiedAt": "2026-09-19"
     }
   ],
   "coordSys": "GCJ-02",
@@ -550,5 +920,15 @@
       "accuracy": "verified",
       "src": "OSM WGS→GCJ"
     }
-  ]
+  ],
+  "verifyMeta": {
+    "checkedAt": "2026-09-19",
+    "method": "多源公开检索：官网/百科/工商黄页/会小二/婚礼猫/婚庆网/婚礼纪；OSM Overpass 梨园周边仅稳定命中亚太花园酒店。",
+    "legend": {
+      "confirmed": "≥2类独立强源（官网/百科/品牌）",
+      "likely": "平台+工商或百科交叉",
+      "platform_only": "主要仅婚礼聚合页，缺实地/官网",
+      "suspect": "旧名与现址主体冲突或高概率停业/更名"
+    }
+  }
 }
