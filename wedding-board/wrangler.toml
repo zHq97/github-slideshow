@@ -1,4 +1,7 @@
 name = "wedding-liyuan-board"
 compatibility_date = "2024-11-01"
-
 pages_build_output_dir = "wedding-board"
+
+[[kv_namespaces]]
+binding = "WEDDING_BOARD_SYNC"
+id = "cdd5718d6aa14d67af0848b77d1912d2"
