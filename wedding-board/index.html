@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
-<title>今晚决策看板 v5 · 新通国际花园</title>
+<title>今晚决策看板 v5.1 · 新通国际花园</title>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet"/>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -82,13 +82,27 @@ table.cmp,table.rep{width:100%;border-collapse:collapse;font-size:.66rem}table.c
 .sources b{display:block;margin-bottom:4px}
 .sources a{color:#1f6f5b;word-break:break-all}
 .sources li{margin:3px 0 3px 14px}
+
+.nearby-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin:6px 0}
+.nearby-stats .stat .n{font-size:.95rem}
+.nearby-tools{display:flex;flex-wrap:wrap;gap:4px;align-items:center;margin:4px 0 6px}
+.nearby-tools label{font-size:.65rem;color:var(--soft)}
+.nearby-tools select{border:1px solid var(--line);border-radius:8px;padding:3px 6px;font-size:.7rem;font-family:inherit}
+.nearby-table{width:100%;border-collapse:collapse;font-size:.65rem}
+.nearby-table th,.nearby-table td{border-bottom:1px solid var(--line);padding:5px 4px;text-align:left;vertical-align:top}
+.nearby-table th{color:var(--soft);font-weight:700}
+.nearby-table tr.target td{background:#f7f1ea}
+.nearby-table button.linkish{border:0;background:none;color:var(--accent);cursor:pointer;padding:0;font:inherit;font-weight:700;text-align:left}
+.nearby-eta{white-space:nowrap;color:#334155}
+.nearby-eta b{color:var(--ink)}
+.nearby-note{font-size:.62rem;color:var(--soft);line-height:1.4;margin-top:6px}
 </style>
 </head>
 <body>
 <div class="app">
 <header>
   <div>
-    <h1>今晚决策看板 v5 · 新通国际花园</h1>
+    <h1>今晚决策看板 v5.1 · 新通国际花园</h1>
     <div class="meta">
       <span class="chip">2027-10-01</span>
       <span class="chip">8–10桌</span>
@@ -153,6 +167,27 @@ table.cmp,table.rep{width:100%;border-collapse:collapse;font-size:.66rem}table.c
     <div id="hotelList" style="margin-top:7px"></div>
   </div>
   <div class="card"><h2>对比台<span class="h">勾选≤3</span></h2><div id="compare" class="foot">勾选 2–3 家后对比</div></div>
+  <div class="card" id="nearbyCard">
+    <h2>附近 · 均价与出行<span class="h">相对目标酒店</span></h2>
+    <div class="nearby-tools">
+      <label>半径</label>
+      <select id="nearbyRadius">
+        <option value="1">1 km</option>
+        <option value="2" selected>2 km</option>
+        <option value="3">3 km</option>
+        <option value="5">5 km</option>
+      </select>
+      <label>参照</label>
+      <select id="nearbyAnchor">
+        <option value="selected">当前选中</option>
+        <option value="center">新通国际花园</option>
+      </select>
+    </div>
+    <div class="nearby-stats" id="nearbyStats"></div>
+    <div id="nearbyTargetEta" class="foot" style="margin-bottom:6px"></div>
+    <div style="overflow:auto;max-height:280px"><table class="nearby-table" id="nearbyTable"><thead></thead><tbody></tbody></table></div>
+    <div class="nearby-note">出行时长为直线距离×路网系数的<strong>估算</strong>（步行≈4.5km/h、公交含候车、打车含等车），签约前请用高德实测。均价取圈内场地 priceMid 算术平均。</div>
+  </div>
   <div class="card"><h2>添加场地</h2>
     <div class="field"><label>名称</label><input id="newName"/></div>
     <div class="field"><label>地址</label><input id="newAddr"/></div>
@@ -231,6 +266,8 @@ if(!state.goals) state.goals={}; if(!state.notes) state.notes={}; if(!state.comp
 if(!state.scriptBase) state.scriptBase=SCRIPT.replace(/\\n/g,'\n');
 if(!state.scriptByHotel) state.scriptByHotel={};
 if(typeof state.scriptExpanded==='undefined') state.scriptExpanded=false;
+if(typeof state.nearbyRadius==='undefined') state.nearbyRadius=2;
+if(!state.nearbyAnchor) state.nearbyAnchor='selected';
 state.seedVersion=SEED.version;
 save(state);
 
@@ -423,6 +460,75 @@ window.saveEdits=function(id){
   enrich(h); save(state); rebuildMarkers(); renderAll(); selectHotel(id,false); toast('已保存手动更新');
 };
 
+
+function fmtMin(m){
+  m=Math.max(1, Math.round(m));
+  if(m<60) return m+' 分';
+  var h=Math.floor(m/60), r=m%60;
+  return h+' 小时'+(r?r+' 分':'');
+}
+/** 直线距离 → 步行/公交/打车估算（分钟） */
+function travelEta(km){
+  var d=Math.max(0, +km||0);
+  var walkPath=d*1.25, drivePath=d*1.35, transitPath=d*1.4;
+  var walk=walkPath/4.5*60;
+  var taxi=drivePath/28*60+3;
+  var wait=d<3?8:12;
+  var bus=transitPath/18*60+wait;
+  return {walk:walk, bus:bus, taxi:taxi, km:d};
+}
+function etaHtml(e){
+  return '<span class="nearby-eta">步行 <b>'+fmtMin(e.walk)+'</b> · 公交 <b>'+fmtMin(e.bus)+'</b> · 打车 <b>'+fmtMin(e.taxi)+'</b></span>';
+}
+function nearbyAnchorPoint(){
+  if(state.nearbyAnchor==='center') return {id:'center', name:CENTER.name, lat:CENTER.lat, lng:CENTER.lng, priceMid:null};
+  var h=state.hotels.find(function(x){return x.id===selectedId});
+  return h||{id:'center', name:CENTER.name, lat:CENTER.lat, lng:CENTER.lng, priceMid:null};
+}
+function renderNearby(){
+  var radEl=document.getElementById('nearbyRadius');
+  var ancEl=document.getElementById('nearbyAnchor');
+  if(radEl) radEl.value=String(state.nearbyRadius||2);
+  if(ancEl) ancEl.value=state.nearbyAnchor==='center'?'center':'selected';
+  var target=nearbyAnchorPoint();
+  var R=+state.nearbyRadius||2;
+  var rows=[];
+  state.hotels.forEach(function(h){
+    var d=haversine(target,h);
+    if(d<=R+1e-9) rows.push({h:h, d:d, toTarget:travelEta(d), fromHome:travelEta(haversine(CENTER,h))});
+  });
+  rows.sort(function(a,b){return a.d-b.d});
+  var prices=rows.map(function(r){return +r.h.priceMid}).filter(function(x){return x>0});
+  var avg=prices.length?Math.round(prices.reduce(function(a,b){return a+b},0)/prices.length):0;
+  var minP=prices.length?Math.min.apply(null,prices):0;
+  var maxP=prices.length?Math.max.apply(null,prices):0;
+  document.getElementById('nearbyStats').innerHTML=
+    '<div class="stat"><div class="n">'+rows.length+'</div><div class="l">圈内家数</div></div>'+
+    '<div class="stat"><div class="n">'+(avg||'—')+'</div><div class="l">均价中位</div></div>'+
+    '<div class="stat"><div class="n">'+(prices.length?(minP+'-'+maxP):'—')+'</div><div class="l">中位区间</div></div>';
+  var homeToTarget=travelEta(haversine(CENTER, target));
+  document.getElementById('nearbyTargetEta').innerHTML=
+    '<b>目标</b>：'+escHtml(target.name)+' · 半径 '+R+'km<br/>'+
+    '<b>新通国际花园 → 目标</b>：'+etaHtml(homeToTarget)+'（直线 '+homeToTarget.km.toFixed(1)+' km）';
+  var thead=document.querySelector('#nearbyTable thead');
+  var tbody=document.querySelector('#nearbyTable tbody');
+  thead.innerHTML='<tr><th>场地</th><th>距目标</th><th>中位价</th><th>到目标（步行/公交/打车）</th><th>圆心→该店</th></tr>';
+  if(!rows.length){
+    tbody.innerHTML='<tr><td colspan="5" class="foot">该半径内无其他场地</td></tr>';
+    return;
+  }
+  tbody.innerHTML=rows.map(function(r){
+    var isT=r.h.id===target.id;
+    return '<tr class="'+(isT?'target':'')+'">'+
+      '<td><button type="button" class="linkish" onclick="selectHotel(\''+r.h.id+'\',true)">'+escHtml(r.h.name)+(isT?' · 目标':'')+'</button><div class="foot">'+escHtml(r.h.cluster||'')+' · '+existenceLabel(r.h.existence)+'</div></td>'+
+      '<td>'+r.d.toFixed(2)+' km</td>'+
+      '<td>'+(r.h.priceMid||'—')+'</td>'+
+      '<td>'+(isT?'—（即目标）':etaHtml(r.toTarget))+'</td>'+
+      '<td>'+etaHtml(r.fromHome)+'</td>'+
+    '</tr>';
+  }).join('');
+}
+
 function renderCompare(){
   var list=state.compare.map(function(id){return state.hotels.find(function(h){return h.id===id})}).filter(Boolean);
   var box=document.getElementById('compare');
@@ -486,7 +592,7 @@ function selectHotel(id, openCard){
   if(openCard) openIds.add(id);
   var h=state.hotels.find(function(x){return x.id===id}); if(!h) return;
   map.panTo(ll(h)); if(markers[h.id]) markers[h.id].openPopup();
-  renderDetail(); renderKanban(); renderList();
+  renderDetail(); renderKanban(); renderList(); renderNearby();
   var el=document.getElementById('card-'+id); if(el) el.scrollIntoView({block:'nearest',behavior:'smooth'});
 }
 window.selectHotel=selectHotel;
@@ -641,6 +747,9 @@ document.getElementById('btnAnchors').onclick=function(){
 };
 document.getElementById('search').oninput=function(e){q=e.target.value.trim();applyFilter()};
 
+
+document.getElementById('nearbyRadius').onchange=function(){state.nearbyRadius=+this.value||2;save(state);renderNearby()};
+document.getElementById('nearbyAnchor').onchange=function(){state.nearbyAnchor=this.value==='center'?'center':'selected';save(state);renderNearby()};
 document.getElementById('btnExportJson').onclick=function(){
   download('wedding-board-export.json', JSON.stringify({version:4,coordSys:'GCJ-02',exportedAt:new Date().toISOString(),center:CENTER,anchors:ANCHORS,hotels:state.hotels,status:state.status,notes:state.notes,compare:state.compare,tree:state.tree,goals:state.goals,manual:state.manual},null,2), 'application/json');
   toast('已导出JSON');
@@ -708,7 +817,7 @@ document.getElementById('btnAdd').onclick=function(){
 document.getElementById('btnReset').onclick=function(){if(!confirm('重置为种子名单？'))return; localStorage.removeItem(STORE); location.reload()};
 
 function bindGoals(){document.querySelectorAll('[data-goal]').forEach(function(el){el.checked=!!state.goals[el.dataset.goal]; el.onchange=function(){state.goals[el.dataset.goal]=el.checked;save(state)}})}
-function renderAll(){renderStats();renderKanban();renderList();renderCompare();renderTree();renderDetail();document.getElementById('hotelCount').textContent=state.hotels.length}
+function renderAll(){renderStats();renderKanban();renderList();renderCompare();renderNearby();renderTree();renderDetail();document.getElementById('hotelCount').textContent=state.hotels.length}
 bindGoals(); rebuildMarkers(); renderAll(); selectHotel(selectedId,true); setTimeout(function(){map.invalidateSize()},200);
 </script>
 </body>
