@@ -375,11 +375,25 @@ function renderCompare(){
   box.innerHTML='<table class="cmp">'+rows.map(function(r){return '<tr><th>'+r[0]+'</th>'+list.map(function(h){return '<td>'+r[1](h)+'</td>'}).join('')+'</tr>'}).join('')+'</table>';
 }
 
+function defaultScriptFor(h){
+  return (state.scriptBase||SCRIPT.replace(/\\n/g,'\n'))+'\n\n【微调】'+h.tip;
+}
+function getScriptText(id){
+  var h=state.hotels.find(function(x){return x.id===id});
+  if(!h) return state.scriptBase||'';
+  if(state.scriptByHotel[id]) return state.scriptByHotel[id];
+  return defaultScriptFor(h);
+}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+
 function renderDetail(){
   var h=state.hotels.find(function(x){return x.id===selectedId});
   document.getElementById('syncHint').textContent=h?h.name:'未选择';
   if(!h){document.getElementById('detail').textContent='点击酒店卡片展开详情';return}
   var tel=String(h.phone).indexOf('待')===0?'<button class="btn" disabled>电话待核实</button>':'<a class="btn primary" href="tel:'+String(h.phone).replace(/-/g,'')+'">拨打 '+h.phone+'</a>';
+  var txt=getScriptText(h.id);
+  var customized=!!state.scriptByHotel[h.id];
+  var open=!!state.scriptExpanded;
   document.getElementById('detail').innerHTML=
     '<div style="font-family:ZCOOL XiaoWei,serif;font-size:1.15rem">'+h.name+'</div>'+
     '<div class="rows">'+h.addr+'<br/><b>'+h.distKm.toFixed(1)+' km</b> · '+h.band+' · '+accuracyLabel(h.accuracy||'approximate')+' · GCJ-02 · 综合分 <span class="score">'+scoreHotel(h)+'</span><br/>'+
@@ -391,7 +405,22 @@ function renderDetail(){
       '<button class="btn" onclick="setStatus(\''+h.id+'\',\'visit\')">约看</button>'+
       '<button class="btn" onclick="setStatus(\''+h.id+'\',\'primary\')">主选</button>'+
       '<button class="btn" onclick="setStatus(\''+h.id+'\',\'backup\')">备选</button></div>'+
-    '<div class="script" style="margin-top:8px">'+(SCRIPT.replace(/\\n/g,'\n'))+'\n\n【微调】'+h.tip+'</div>';
+    '<div class="script-wrap'+(open?' open':'')+'" id="scriptWrap">'+
+      '<div class="script-head" onclick="toggleScriptExpand()">'+
+        '<span class="ttl">询价话术 · '+(open?'点击收起':'点击展开编辑')+'</span>'+
+        '<span class="meta">'+(customized?'已定制':'默认')+(open?' · 可编辑':'')+'</span>'+
+      '</div>'+
+      '<div class="script-preview">'+escHtml(txt)+'</div>'+
+      '<div class="script-body">'+
+        '<textarea id="scriptEditor" rows="10">'+escHtml(txt)+'</textarea>'+
+        '<div class="script-actions">'+
+          '<button class="btn primary" type="button" onclick="saveScriptEdit(\''+h.id+'\')">保存本店话术</button>'+
+          '<button class="btn" type="button" onclick="saveScriptAsBase(\''+h.id+'\')">设为全局默认</button>'+
+          '<button class="btn" type="button" onclick="resetScriptEdit(\''+h.id+'\')">恢复默认</button>'+
+          '<button class="btn" type="button" onclick="copyScript(\''+h.id+'\')">复制</button>'+
+        '</div>'+
+      '</div>'+
+    '</div>';
 }
 
 function selectHotel(id, openCard){
@@ -403,9 +432,43 @@ function selectHotel(id, openCard){
   var el=document.getElementById('card-'+id); if(el) el.scrollIntoView({block:'nearest',behavior:'smooth'});
 }
 window.selectHotel=selectHotel;
+window.toggleScriptExpand=function(){
+  state.scriptExpanded=!state.scriptExpanded;
+  save(state);
+  renderDetail();
+};
+window.saveScriptEdit=function(id){
+  var ta=document.getElementById('scriptEditor');
+  if(!ta) return;
+  var v=ta.value.trim();
+  if(!v){toast('话术不能为空');return}
+  state.scriptByHotel[id]=v;
+  save(state);
+  toast('已保存本店话术');
+  renderDetail();
+};
+window.saveScriptAsBase=function(id){
+  var ta=document.getElementById('scriptEditor');
+  var v=(ta?ta.value:getScriptText(id)).trim();
+  if(!v){toast('话术不能为空');return}
+  state.scriptBase=v;
+  delete state.scriptByHotel[id];
+  save(state);
+  toast('已设为全局默认');
+  renderDetail();
+};
+window.resetScriptEdit=function(id){
+  delete state.scriptByHotel[id];
+  save(state);
+  toast('已恢复默认');
+  renderDetail();
+};
 window.copyScript=async function(id){
   var h=state.hotels.find(function(x){return x.id===id});
-  var t=(SCRIPT.replace(/\\n/g,'\n'))+'\n\n【微调】'+h.tip+'\n【电话】'+h.phone;
+  if(!h) return;
+  var ta=document.getElementById('scriptEditor');
+  var body=(ta&&state.scriptExpanded)?ta.value:getScriptText(id);
+  var t=body+'\n【电话】'+h.phone;
   try{await navigator.clipboard.writeText(t);toast('已复制')}catch(e){toast('复制失败')}
 };
 
