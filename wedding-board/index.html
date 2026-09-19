@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>今晚决策看板 v3 · 新通国际花园</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700;900&family=ZCOOL+XiaoWei&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root{--ink:#142033;--soft:#4a5d73;--card:#fffcf7;--line:rgba(20,32,51,.12);--accent:#c45c26;--ok:#1f6f5b;--p3:#4b5d78;--shadow:0 10px 32px rgba(20,32,51,.1);--r:16px}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{font-family:"Noto Sans SC",sans-serif;color:var(--ink);background:radial-gradient(900px 480px at 0% 0%,#f7d9c2,transparent 55%),radial-gradient(800px 420px at 100% 0%,#cfe8df,transparent 50%),linear-gradient(165deg,#e8eee9,#eef2f0 40%,#e6ecf2);overflow:hidden}
+.app{height:100%;display:grid;grid-template-rows:auto 1fr}
+header{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px 14px;border-bottom:1px solid var(--line);background:rgba(238,242,240,.88);backdrop-filter:blur(10px);z-index:5;flex-wrap:wrap}
+h1{margin:0;font-family:"ZCOOL XiaoWei",serif;font-size:1.28rem;font-weight:400}
+.meta{display:flex;gap:5px;flex-wrap:wrap}.chip{font-size:.72rem;padding:3px 8px;border-radius:999px;background:#fff;border:1px solid var(--line)}.chip b{color:var(--accent)}
+.btns{display:flex;gap:5px;flex-wrap:wrap}
+.btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 9px;font-size:.7rem;cursor:pointer;font-family:inherit}
+.btn:hover{border-color:var(--accent);color:var(--accent)}.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}.btn.on{background:var(--ink);color:#fff;border-color:var(--ink)}.btn.ok{background:var(--ok);border-color:var(--ok);color:#fff}
+.layout{display:grid;grid-template-columns:300px 1fr 400px;min-height:0;height:100%}
+@media(max-width:1100px){body{overflow:auto}.app{height:auto}.layout{grid-template-columns:1fr;grid-template-rows:auto 48vh auto}}
+.panel{overflow:auto;padding:10px;min-height:0}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--shadow);padding:10px;margin-bottom:9px}
+.card h2{margin:0 0 7px;font-size:.86rem;display:flex;justify-content:space-between}.card h2 .h{font-weight:400;color:var(--soft);font-size:.68rem}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+.stat{padding:7px;border-radius:11px;background:linear-gradient(145deg,#fff,#f1eee7);border:1px solid var(--line)}.stat .n{font-size:1.15rem;font-weight:900}.stat .l{font-size:.65rem;color:var(--soft)}
+.col{background:rgba(255,255,255,.4);border:1px dashed rgba(20,32,51,.16);border-radius:11px;padding:6px;margin-bottom:6px}
+.col-t{font-size:.65rem;font-weight:700;color:var(--soft);display:flex;justify-content:space-between;margin-bottom:3px}
+.k{background:#fff;border:1px solid var(--line);border-radius:9px;padding:6px;margin-bottom:4px;cursor:grab}.k.active{border-color:var(--accent);box-shadow:0 0 0 2px rgba(196,92,38,.18)}.k .n{font-weight:700;font-size:.76rem}.k .s{font-size:.65rem;color:var(--soft)}
+#map{height:100%;min-height:320px;border-left:1px solid var(--line);border-right:1px solid var(--line)}
+.map-wrap{position:relative;min-height:0}
+.tb{position:absolute;z-index:1000;left:8px;top:8px;display:flex;flex-wrap:wrap;gap:4px;max-width:calc(100% - 16px)}
+.tb .btn{background:rgba(255,252,247,.95);box-shadow:0 3px 10px rgba(0,0,0,.08)}
+.legend{position:absolute;z-index:1000;right:8px;bottom:14px;background:rgba(255,252,247,.95);border:1px solid var(--line);border-radius:10px;padding:6px 8px;font-size:.65rem;box-shadow:var(--shadow)}
+.legend i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
+.hotel{border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:6px;overflow:hidden;transition:border-color .15s,box-shadow .15s}
+.hotel.selected{border-color:var(--accent);box-shadow:0 0 0 2px rgba(196,92,38,.15)}
+.hotel .head{padding:8px;cursor:pointer;display:flex;justify-content:space-between;gap:6px;align-items:flex-start}
+.hotel h3{margin:0;font-size:.82rem}.badge{font-size:.6rem;font-weight:700;padding:2px 6px;border-radius:999px}.p1{background:#fde8dc;color:#9a3412}.p2{background:#d8f3ea;color:#115e4a}.p3{background:#e4e9f0;color:#334155}
+.rows{font-size:.7rem;color:var(--soft)}.rows b{color:var(--ink)}
+.hotel .body{display:none;padding:0 8px 10px;border-top:1px dashed var(--line);animation:rise .25s ease}
+.hotel.open .body{display:block}
+@keyframes rise{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+.bar{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+.field{margin:5px 0}.field label{display:block;font-size:.65rem;color:var(--soft);margin-bottom:2px}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:5px 7px;font-family:inherit;font-size:.72rem}
+.script{font-size:.65rem;line-height:1.45;white-space:pre-wrap;background:#142033;color:#eef2f0;border-radius:9px;padding:7px;max-height:110px;overflow:auto}
+.tree-step{border:1px solid var(--line);border-radius:9px;padding:7px;margin-bottom:5px;background:#fff}
+.tree-step .q{font-weight:700;font-size:.76rem;margin-bottom:5px}
+.tree-step .opts{display:flex;flex-wrap:wrap;gap:3px}
+.check{display:flex;gap:5px;align-items:flex-start;font-size:.7rem;margin:3px 0;cursor:pointer}
+.toast{position:fixed;left:50%;bottom:18px;transform:translateX(-50%) translateY(14px);background:var(--ink);color:#fff;padding:8px 13px;border-radius:999px;font-size:.75rem;opacity:0;transition:.25s;z-index:9999}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.pin{width:26px;height:26px;border-radius:50%;color:#fff;font-size:10px;font-weight:800;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.25);background:var(--accent)}
+.pin.p2{background:var(--ok)}.pin.p3{background:var(--p3)}.pin.home{background:#142033;width:16px;height:16px;font-size:0}
+.foot{font-size:.64rem;color:var(--soft);line-height:1.4;margin-top:5px}
+table.cmp,table.rep{width:100%;border-collapse:collapse;font-size:.66rem}table.cmp th,table.cmp td,table.rep th,table.rep td{border-bottom:1px solid var(--line);padding:4px 3px;text-align:left;vertical-align:top}table.cmp th,table.rep th{color:var(--soft);font-weight:500}
+.modal{position:fixed;inset:0;background:rgba(20,32,51,.45);z-index:10000;display:none;align-items:center;justify-content:center;padding:16px}
+.modal.show{display:flex}
+.modal .box{background:#fff;border-radius:16px;max-width:900px;width:100%;max-height:90vh;overflow:auto;padding:16px;box-shadow:var(--shadow)}
+.modal h3{margin:0 0 8px;font-family:"ZCOOL XiaoWei",serif;font-size:1.2rem}
+.publish{background:#f4f7f5;border:1px dashed var(--ok);border-radius:10px;padding:8px;font-size:.7rem;line-height:1.45}
+.score{display:inline-block;min-width:28px;text-align:center;font-weight:800;color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+  <div>
+    <h1>今晚决策看板 v3 · 新通国际花园</h1>
+    <div class="meta">
+      <span class="chip">2027-10-01</span>
+      <span class="chip">8–10桌</span>
+      <span class="chip">圆心 <b>新通国际花园</b></span>
+      <span class="chip">5km / 8km</span>
+      <span class="chip">种子 <b id="hotelCount">0</b> 家</span>
+    </div>
+  </div>
+  <div class="btns">
+    <button class="btn" id="btnExportJson">导出JSON</button>
+    <button class="btn" id="btnExportCsv">导出CSV场地</button>
+    <button class="btn" id="btnExportCalls">导出CSV通话</button>
+    <label class="btn">导入JSON<input type="file" id="importJson" accept=".json" hidden/></label>
+    <label class="btn">导入CSV<input type="file" id="importCsv" accept=".csv" hidden/></label>
+    <button class="btn ok" id="btnReport">可比报告</button>
+    <button class="btn primary" id="btnWord">导出Word</button>
+    <button class="btn" id="btnPublishHelp">免费发布?</button>
+    <button class="btn" id="btnReset">重置</button>
+  </div>
+</header>
+<div class="layout">
+<aside class="panel">
+  <div class="card"><h2>今晚目标<span class="h">勾选</span></h2>
+    <div class="stats" id="stats"></div>
+    <label class="check"><input type="checkbox" data-goal="g1"/> 打通 ≥8 家</label>
+    <label class="check"><input type="checkbox" data-goal="g2"/> 主池有效 ≥3</label>
+    <label class="check"><input type="checkbox" data-goal="g3"/> 约看厅 ≥2</label>
+    <label class="check"><input type="checkbox" data-goal="g4"/> 主选+备选定稿</label>
+  </div>
+  <div class="card"><h2>执行看板<span class="h">拖拽/点选同步</span></h2><div id="kanban"></div></div>
+  <div class="card"><h2>决策向导<span class="h">逐步点选</span></h2><div id="tree"></div><div id="treeResult" class="foot"></div></div>
+</aside>
+<main class="map-wrap">
+  <div class="tb" id="filters">
+    <button class="btn on" data-f="all">全部</button>
+    <button class="btn" data-f="p1">P1</button>
+    <button class="btn" data-f="p2">P2</button>
+    <button class="btn" data-f="p3">P3</button>
+    <button class="btn" data-f="r5">≤5km</button>
+    <button class="btn" data-f="r8">5–8km</button>
+    <button class="btn" data-f="todo">待拨打</button>
+    <button class="btn" data-f="valid">有效/约看</button>
+    <button class="btn" id="btnFit">适配</button>
+  </div>
+  <div id="map"></div>
+  <div class="legend">
+    <div><i style="background:#c45c26"></i>P1 <i style="background:#1f6f5b"></i>P2 <i style="background:#4b5d78"></i>P3</div>
+    <div><i style="background:#142033"></i>新通国际花园 · 高德瓦片</div>
+  </div>
+</main>
+<aside class="panel">
+  <div class="card" id="syncCard"><h2>当前选中 · 联动<span class="h" id="syncHint">未选择</span></h2><div id="detail">点击酒店卡片展开详情；地图/看板/列表同步。</div></div>
+  <div class="card"><h2>名单 · 点击展开<span class="h">可手动改</span></h2>
+    <input type="text" id="search" placeholder="搜索名称/商圈…"/>
+    <div id="hotelList" style="margin-top:7px"></div>
+  </div>
+  <div class="card"><h2>对比台<span class="h">勾选≤3</span></h2><div id="compare" class="foot">勾选 2–3 家后对比</div></div>
+  <div class="card"><h2>添加场地</h2>
+    <div class="field"><label>名称</label><input id="newName"/></div>
+    <div class="field"><label>地址</label><input id="newAddr"/></div>
+    <div class="field"><label>电话</label><input id="newPhone"/></div>
+    <div class="field"><label>纬度 / 经度（可选）</label><div style="display:flex;gap:4px"><input id="newLat" placeholder="lat"/><input id="newLng" placeholder="lng"/></div></div>
+    <button class="btn primary" id="btnAdd">加入名单</button>
+  </div>
+</aside>
+</div>
+</div>
+
+<div class="modal" id="reportModal">
+  <div class="box">
+    <h3>场地可比报告</h3>
+    <p class="foot">按距离、餐标中位、状态、决策树结果综合打分；仅供今晚决策，非最终报价。</p>
+    <div id="reportBody"></div>
+    <div class="bar" style="margin-top:12px">
+      <button class="btn primary" id="btnWordFromReport">导出 Word</button>
+      <button class="btn" id="btnCloseReport">关闭</button>
+    </div>
+  </div>
+</div>
+<div class="modal" id="publishModal">
+  <div class="box">
+    <h3>可以免费发布吗？</h3>
+    <div class="publish">
+      <b>可以。</b>本看板是纯静态 HTML（+公开 CDN），不需要服务器后端。免费方式：
+      <ol>
+        <li><b>Netlify Drop</b>：打开 app.netlify.com/drop，把本 HTML（或整个 Board 文件夹）拖进去，立刻得到 https 链接。</li>
+        <li><b>Cloudflare Pages / GitHub Pages / Vercel</b>：把文件推到仓库后一键静态托管，均有免费额度。</li>
+        <li><b>不发布</b>：继续本地用浏览器打开；数据在你电脑的 localStorage，更私密。</li>
+      </ol>
+      注意：免费托管后链接公开可见——不要在页面里填身份证/银行卡等敏感信息；通话笔记会随「导出 JSON」走，上传前可先重置或导出备份后清空。
+      高德瓦片为第三方公开切片，正式商用建议申请自己的高德 Key。
+    </div>
+    <div class="bar" style="margin-top:12px"><button class="btn" id="btnClosePublish">知道了</button></div>
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+<script type="application/json" id="SEED">{"version": 3, "center": {"id": "xintong", "name": "新通国际花园", "addr": "通州梨园中街与九棵树东路交叉口东北（梨园站北侧）", "lat": 39.884, "lng": 116.6645, "note": "WGS84 近似；地图层已转 GCJ-02 对齐高德瓦片"}, "radiiKm": [5, 8], "hotels": [{"id": "yatai", "priority": 1, "name": "亚太花园酒店", "addr": "玉桥西路103号", "lat": 39.8855, "lng": 116.661, "price": "约 2299–4688/桌", "priceMid": 2800, "tables": "约 3–24 桌 · 无柱宴会厅线索", "phone": "010-81528822", "phoneNote": "公开页可见", "tip": "四星酒店；问 10 桌是否独立厅、国庆定金与换厅", "cluster": "梨园/玉桥核心", "why": "距新通国际花园近；桌数上限贴合小婚宴", "styleFit": "both"}, {"id": "aifeier", "priority": 1, "name": "爱菲尔宴会中心", "addr": "梨园南街328-3号", "lat": 39.873, "lng": 116.6755, "price": "约 3999–8999/桌（或含场布）", "priceMid": 4500, "tables": "含约 8 桌小厅；多厅", "phone": "15910738779", "phoneNote": "近3年可见", "tip": "要小厅；问展示价是否含场布", "cluster": "临河里宴会集群", "why": "厅型匹配 8–10 桌", "styleFit": "western"}, {"id": "shengshi", "priority": 1, "name": "盛世家宴", "addr": "梨园南街326号", "lat": 39.8733, "lng": 116.6746, "price": "约 1899–3399/桌", "priceMid": 2600, "tables": "多厅；需问 10 桌是否过大厅", "phone": "010-81591055", "phoneNote": "待核实年份", "tip": "问隔断/小宴灯光模式", "cluster": "临河里宴会集群", "why": "餐标落在普通–舒适带", "styleFit": "both"}, {"id": "lanpai", "priority": 1, "name": "蓝派之恋婚礼中心", "addr": "荔景西路紫运西里22栋", "lat": 39.9082, "lng": 116.6785, "price": "约 2580–4680/桌", "priceMid": 3500, "tables": "一站式婚礼堂", "phone": "待核实", "phoneNote": "待核实", "tip": "先测距；问强制打包婚庆否", "cluster": "荔景/武夷边缘", "why": "简约西式友好", "styleFit": "western"}, {"id": "wanlongzhou", "priority": 2, "name": "万龙洲（通州店）", "addr": "九棵树东路386号京贸新干线", "lat": 39.8778, "lng": 116.6702, "price": "约 2188–7188/桌", "priceMid": 2800, "tables": "约 3–60 桌", "phone": "待核实", "phoneNote": "待核实", "tip": "问音响灯光是否免费、进场费", "cluster": "临河里宴会集群", "why": "酒楼性价比与舞台条件", "styleFit": "chinese"}, {"id": "nishi", "priority": 2, "name": "倪氏海鲜（通州店）", "addr": "梨园南街红绿灯东北角", "lat": 39.8742, "lng": 116.6742, "price": "约 1688–4988/桌", "priceMid": 2500, "tables": "约 3–46 桌", "phone": "待核实", "phoneNote": "待核实", "tip": "核实服务费/开瓶费/场地费", "cluster": "临河里宴会集群", "why": "普通规格友好", "styleFit": "chinese"}, {"id": "jinziyin", "priority": 2, "name": "金紫银海鲜（通州店）", "addr": "梨园南小街红绿灯东北角", "lat": 39.8745, "lng": 116.6735, "price": "约 1888–2888/桌", "priceMid": 2300, "tables": "约 3–33 桌", "phone": "待核实", "phoneNote": "待核实", "tip": "拒绝无隔离拼厅", "cluster": "临河里宴会集群", "why": "公开餐标贴近普通规格", "styleFit": "chinese"}, {"id": "shengfeng", "priority": 2, "name": "盛丰楼", "addr": "京贸新干线/小街三队综合楼", "lat": 39.8775, "lng": 116.6696, "price": "约 1999–5999/桌", "priceMid": 2700, "tables": "1F≤30 / 2F≤60", "phone": "待核实", "phoneNote": "待核实", "tip": "优先 1F 小规模方案", "cluster": "临河里宴会集群", "why": "与万龙洲同商圈便于连看", "styleFit": "chinese"}, {"id": "jinlu", "priority": 2, "name": "锦炉（梨园店）", "addr": "梨园南街328号", "lat": 39.8731, "lng": 116.6751, "price": "约 2188 起", "priceMid": 2400, "tables": "需确认小规模厅", "phone": "待核实", "phoneNote": "待核实", "tip": "与爱菲尔同街可顺路", "cluster": "临河里宴会集群", "why": "菜单公开细", "styleFit": "chinese"}, {"id": "qingnian_yj", "priority": 2, "name": "青年餐厅（云景东路）", "addr": "梨园镇云景东路52号", "lat": 39.8805, "lng": 116.658, "price": "约 1388–2188/桌", "priceMid": 1800, "tables": "约 3–26 桌", "phone": "待核实", "phoneNote": "待核实", "tip": "经济档；确认仪式区与独立感", "cluster": "梨园云景", "why": "近圆心、餐标低、适合控预算", "styleFit": "chinese"}, {"id": "qingnian_cp", "priority": 2, "name": "青年餐厅（翠屏北里）", "addr": "翠屏北里西区13号楼", "lat": 39.891, "lng": 116.655, "price": "约 1088–3688/桌", "priceMid": 2000, "tables": "约 3–28 桌", "phone": "待核实", "phoneNote": "待核实", "tip": "问国庆档与化妆间", "cluster": "翠屏/梨园北", "why": "普通规格备选池", "styleFit": "chinese"}, {"id": "yayuan", "priority": 2, "name": "时尚雅园大酒店", "addr": "运河西大街葛布店南里1号", "lat": 39.8905, "lng": 116.6505, "price": "宴会价待询", "priceMid": 2500, "tables": "最大会场约 450㎡（会议向，婚宴待验证）", "phone": "待核实", "phoneNote": "待核实", "tip": "先确认是否承接婚宴及 10 桌方案", "cluster": "九棵树/果园", "why": "近九棵树，拓展供给", "styleFit": "both"}, {"id": "dongfang", "priority": 3, "name": "东方御宴大酒楼", "addr": "嘉创二路甲2号一带（通州）", "lat": 39.87, "lng": 116.69, "price": "约 1000–3888/桌", "priceMid": 2200, "tables": "约 3–30 桌", "phone": "待核实", "phoneNote": "待核实", "tip": "测距；确认地址准确门牌", "cluster": "拓展圈", "why": "公开餐标覆盖普通档", "styleFit": "chinese"}, {"id": "jinhongdi", "priority": 3, "name": "金宏帝怡园", "addr": "通州北寺北口一带", "lat": 39.9, "lng": 116.64, "price": "约 1288–2588/桌", "priceMid": 1900, "tables": "约 3–30 桌", "phone": "待核实", "phoneNote": "待核实", "tip": "边缘拓展；先测距再打", "cluster": "拓展圈", "why": "低餐标备选", "styleFit": "chinese"}, {"id": "yunheyuan", "priority": 3, "name": "运河源酒店", "addr": "通州区（公开榜单）", "lat": 39.895, "lng": 116.7, "price": "约 888–2299/桌", "priceMid": 1600, "tables": "约 3–36 桌", "phone": "待核实", "phoneNote": "待核实", "tip": "经济档；仪式条件可能弱", "cluster": "拓展圈", "why": "预算紧凑时的边缘选项", "styleFit": "chinese"}, {"id": "wanda", "priority": 3, "name": "通州万达锦华酒店", "addr": "万盛南街102号", "lat": 39.8898, "lng": 116.7165, "price": "宴会能力待询", "priceMid": 4000, "tables": "会议/餐饮向", "phone": "010-58756666", "phoneNote": "官网可见", "tip": "问能否接 10 桌婚宴", "cluster": "副中心/万盛西", "why": "电话稳的机动备胎", "styleFit": "western"}, {"id": "hampton", "priority": 3, "name": "运河商务区希尔顿欢朋", "addr": "新华东街126号", "lat": 39.9055, "lng": 116.686, "price": "会议向，婚宴待询", "priceMid": 3800, "tables": "会议约 300 人级≠成熟婚宴", "phone": "010-80881866", "phoneNote": "官网可见", "tip": "仅档期备胎", "cluster": "运河商务区", "why": "电话可信", "styleFit": "western"}, {"id": "henghao", "priority": 3, "name": "北京恒豪酒店", "addr": "通州（婚礼猫列表）", "lat": 39.898, "lng": 116.695, "price": "约 1388–2688/桌", "priceMid": 2000, "tables": "约 3–28 桌", "phone": "待核实", "phoneNote": "待核实", "tip": "确认准确地址与国庆档", "cluster": "拓展圈", "why": "普通规格拓展池", "styleFit": "both"}, {"id": "dayali", "priority": 2, "name": "大鸭梨烤鸭店（土桥店）", "addr": "梨园镇砖厂南里40号楼华远好天地2楼", "lat": 39.8685, "lng": 116.6805, "price": "宴会价待询（会场约450㎡线索）", "priceMid": 2400, "tables": "会议/宴会向，约可二百人级", "phone": "待核实", "phoneNote": "待核实", "tip": "问是否承接婚宴8–10桌及独立区", "cluster": "土桥拓展", "why": "临近土桥，拓展供给", "styleFit": "chinese"}, {"id": "geya", "priority": 3, "name": "格雅酒店（环球梨园店）", "addr": "梨园东里2号", "lat": 39.876, "lng": 116.678, "price": "会议向，婚宴待询", "priceMid": 2800, "tables": "小会议厅为主，婚宴能力待验证", "phone": "待核实", "phoneNote": "待核实", "tip": "先确认有无宴会餐饮包场", "cluster": "临河里/梨园东", "why": "住宿配套机动", "styleFit": "both"}, {"id": "crowne", "priority": 3, "name": "通州皇冠假日酒店", "addr": "京彩街35号（近群芳站）", "lat": 39.902, "lng": 116.705, "price": "五星会议餐标偏高，待询婚宴", "priceMid": 5500, "tables": "会议厅多，婚宴需专项询价", "phone": "待核实", "phoneNote": "待核实", "tip": "可能超普通规格预算，仅作对照", "cluster": "副中心拓展", "why": "品牌对照样本", "styleFit": "western"}, {"id": "yunhewan", "priority": 3, "name": "运河湾生态园", "addr": "张家湾镇张凤路15号一带", "lat": 39.86, "lng": 116.72, "price": "约 1288–2888/桌", "priceMid": 2000, "tables": "约 3–50 桌", "phone": "待核实", "phoneNote": "待核实", "tip": "测距；偏远需确认宾客通勤", "cluster": "张家湾拓展", "why": "低餐标生态园选项", "styleFit": "chinese"}, {"id": "xinghu", "priority": 3, "name": "星湖园华夏婚礼中心", "addr": "台湖镇铺大路与张台路交汇一带", "lat": 39.84, "lng": 116.69, "price": "约 1988–2888/桌", "priceMid": 2400, "tables": "约 3–60 桌", "phone": "待核实", "phoneNote": "待核实", "tip": "多半>8km，仅主池不足时看", "cluster": "台湖拓展", "why": "婚礼中心形态", "styleFit": "both"}, {"id": "sanle", "priority": 3, "name": "三乐宴会中心", "addr": "马驹桥陈各庄一带", "lat": 39.82, "lng": 116.56, "price": "约 1680–3280/桌", "priceMid": 2400, "tables": "约 3–120 桌，层高宣传高", "phone": "待核实", "phoneNote": "待核实", "tip": "距离远；仪式硬件可能好", "cluster": "马驹桥拓展", "why": "大层高宴会对照", "styleFit": "both"}, {"id": "jinshitan", "priority": 3, "name": "金石滩", "addr": "通州（婚礼猫列表）", "lat": 39.888, "lng": 116.64, "price": "约 1288–2888/桌", "priceMid": 2000, "tables": "待确认", "phone": "待核实", "phoneNote": "待核实", "tip": "确认准确门牌与国庆档", "cluster": "拓展圈", "why": "普通档补充", "styleFit": "chinese"}]}</script>
+<script>
+const SEED = JSON.parse(document.getElementById('SEED').textContent);
+const STORE = 'wedding-board-v3';
+const COLS = [
+  {key:'todo',title:'待拨打'},{key:'callback',title:'回拨/半份'},{key:'valid',title:'有效询价'},
+  {key:'visit',title:'已约看厅'},{key:'primary',title:'主选'},{key:'backup',title:'备选'},{key:'out',title:'淘汰'}
+];
+const SCRIPT = "您好，我是新人，想咨询婚宴预订。\\n我们预定日期是 2027 年 10 月 1 日，国庆当天，大约 8 到 10 桌。\\n圆心在通州梨园新通国际花园附近，希望场地尽量在 5 公里内。\\n风格在新中式和简约西式里选，需要室内简单仪式。\\n\\n请问：1）10/1 有档期吗？独立厅还是拼厅？\\n2）8–10 桌安排哪个厅？层高/柱子/舞台？\\n3）只含餐 / 含酒水 各报一档普通规格。\\n4）服务费、最低消费、开瓶费、进场费？\\n5）化妆间与停车？\\n6）定金比例、锁厅名、换厅怎么处理？\\n7）取消改期规则？请发菜单和平面图，我们想约看厅。";
+
+function outOfChina(lat,lng){return lng<72.004||lng>137.8347||lat<0.8293||lat>55.8271}
+function transformLat(x,y){let r=-100+2*x+3*y+.2*y*y+.1*x*y+.2*Math.sqrt(Math.abs(x));r+=(20*Math.sin(6*x*Math.PI)+20*Math.sin(2*x*Math.PI))*2/3;r+=(20*Math.sin(y*Math.PI)+40*Math.sin(y/3*Math.PI))*2/3;r+=(160*Math.sin(y/12*Math.PI)+320*Math.sin(y*Math.PI/30))*2/3;return r}
+function transformLng(x,y){let r=300+x+2*y+.1*x*x+.1*x*y+.1*Math.sqrt(Math.abs(x));r+=(20*Math.sin(6*x*Math.PI)+20*Math.sin(2*x*Math.PI))*2/3;r+=(20*Math.sin(x*Math.PI)+40*Math.sin(x/3*Math.PI))*2/3;r+=(150*Math.sin(x/12*Math.PI)+300*Math.sin(x/30*Math.PI))*2/3;return r}
+function wgs84ToGcj02(lat,lng){if(outOfChina(lat,lng))return[lat,lng];const a=6378245,ee=.006693421622965943;let dLat=transformLat(lng-105,lat-35),dLng=transformLng(lng-105,lat-35);const rad=lat/180*Math.PI;let magic=Math.sin(rad);magic=1-ee*magic*magic;const sq=Math.sqrt(magic);dLat=(dLat*180)/((a*(1-ee))/(magic*sq)*Math.PI);dLng=(dLng*180)/(a/sq*Math.cos(rad)*Math.PI);return[lat+dLat,lng+dLng]}
+function haversine(a,b){const R=6371,dLat=(b.lat-a.lat)*Math.PI/180,dLng=(b.lng-a.lng)*Math.PI/180;const x=Math.sin(dLat/2)**2+Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180)*Math.sin(dLng/2)**2;return 2*R*Math.asin(Math.sqrt(x))}
+function load(){try{return JSON.parse(localStorage.getItem(STORE))||{}}catch(e){return{}}}
+function save(s){localStorage.setItem(STORE,JSON.stringify(s))}
+function toast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1700)}
+function download(name,text,type){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([text],{type:type||'text/plain'}));a.download=name;a.click()}
+function csvEscape(v){const s=String(v==null?'':v);return /[",\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s}
+function statusTitle(k){return (COLS.find(c=>c.key===k)||{}).title||k}
+
+let state=load();
+if(!state.hotels) state.hotels=JSON.parse(JSON.stringify(SEED.hotels));
+if(!state.status) state.status={};
+state.hotels.forEach(h=>{if(!state.status[h.id]) state.status[h.id]='todo'});
+if(!state.goals) state.goals={}; if(!state.notes) state.notes={}; if(!state.compare) state.compare=[]; if(!state.tree) state.tree={}; if(!state.calls) state.calls={}; if(!state.manual) state.manual={};
+save(state);
+
+const CENTER=SEED.center;
+let filter='all', selectedId=state.hotels[0]&&state.hotels[0].id, q='', openIds=new Set();
+const markers={};
+function enrich(h){h.distKm=haversine(CENTER,h);h.band=h.distKm<=5?'r5':h.distKm<=8?'r8':'far';return h}
+state.hotels.forEach(enrich);
+document.getElementById('hotelCount').textContent=state.hotels.length;
+
+const map=L.map('map').setView(wgs84ToGcj02(CENTER.lat,CENTER.lng),12.5);
+L.tileLayer('https://webrd0{s}.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x={x}&y={y}&z={z}',{subdomains:['1','2','3','4'],maxZoom:18,attribution:'© 高德'}).addTo(map);
+const [clat,clng]=wgs84ToGcj02(CENTER.lat,CENTER.lng);
+L.circle([clat,clng],{radius:5000,color:'#142033',weight:2,fillColor:'#1f6f5b',fillOpacity:.05}).addTo(map);
+L.circle([clat,clng],{radius:8000,color:'#4b5d78',weight:1.5,dashArray:'6 8',fill:false}).addTo(map);
+L.marker([clat,clng],{icon:L.divIcon({className:'',html:'<div class="pin home"></div>',iconSize:[16,16],iconAnchor:[8,8]})}).addTo(map).bindPopup('<b>新通国际花园</b>');
+
+function pin(h){return '<div class="pin'+(h.priority===1?'':h.priority===2?' p2':' p3')+'">'+h.priority+'</div>'}
+function rebuildMarkers(){
+  Object.keys(markers).forEach(k=>{map.removeLayer(markers[k]);delete markers[k]});
+  state.hotels.forEach(h=>{
+    enrich(h);
+    const ll=wgs84ToGcj02(h.lat,h.lng);
+    const m=L.marker(ll,{icon:L.divIcon({className:'',html:pin(h),iconSize:[26,26],iconAnchor:[13,13]})});
+    m.bindPopup('<b>'+h.name+'</b><br/>'+h.distKm.toFixed(1)+'km · '+statusTitle(state.status[h.id]));
+    m.on('click',function(){selectHotel(h.id,true)});
+    markers[h.id]=m;
+  });
+  applyFilter();
+}
+function visible(h){
+  if(q && !(h.name+h.cluster+h.addr).includes(q)) return false;
+  if(filter==='all')return true;
+  if(filter==='p1')return h.priority===1;
+  if(filter==='p2')return h.priority===2;
+  if(filter==='p3')return h.priority===3;
+  if(filter==='r5')return h.band==='r5';
+  if(filter==='r8')return h.band==='r8';
+  if(filter==='todo')return state.status[h.id]==='todo';
+  if(filter==='valid')return ['valid','visit','primary','backup'].includes(state.status[h.id]);
+  return true;
+}
+function applyFilter(){
+  state.hotels.forEach(h=>{
+    const show=visible(h);
+    if(show){if(!map.hasLayer(markers[h.id])) markers[h.id].addTo(map)}
+    else if(map.hasLayer(markers[h.id])) map.removeLayer(markers[h.id]);
+  });
+  renderList(); renderKanban();
+}
+
+function setStatus(id,st){state.status[id]=st;save(state);renderAll();selectHotel(id,false);toast((state.hotels.find(h=>h.id===id)||{}).name+' → '+statusTitle(st))}
+window.setStatus=setStatus;
+
+function scoreHotel(h){
+  let s=50;
+  if(h.band==='r5') s+=20; else if(h.band==='r8') s+=8; else s-=15;
+  if(h.priority===1) s+=10; else if(h.priority===2) s+=5;
+  const st=state.status[h.id];
+  if(st==='primary') s+=25; else if(st==='backup') s+=15; else if(st==='visit') s+=12; else if(st==='valid') s+=10; else if(st==='out') s-=30; else if(st==='callback') s+=3;
+  if(h.priceMid>=2200&&h.priceMid<=3200) s+=12; else if(h.priceMid<2200) s+=6; else if(h.priceMid>4500) s-=8;
+  if(!String(h.phone).startsWith('待')) s+=5;
+  if(state.notes[h.id]) s+=3;
+  return Math.max(0,Math.min(100,s));
+}
+
+function renderStats(){
+  const c={}; COLS.forEach(x=>c[x.key]=0);
+  state.hotels.forEach(h=>{c[state.status[h.id]]=(c[state.status[h.id]]||0)+1});
+  const r5=state.hotels.filter(h=>h.band==='r5').length;
+  document.getElementById('stats').innerHTML=
+    '<div class="stat"><div class="n">'+(c.todo||0)+'</div><div class="l">待拨打</div></div>'+
+    '<div class="stat"><div class="n">'+((c.valid||0)+(c.visit||0))+'</div><div class="l">有效/约看</div></div>'+
+    '<div class="stat"><div class="n">'+(c.primary||0)+'/'+(c.backup||0)+'</div><div class="l">主选/备选</div></div>'+
+    '<div class="stat"><div class="n">'+r5+'</div><div class="l">≤5km</div></div>';
+}
+function renderKanban(){
+  document.getElementById('kanban').innerHTML=COLS.map(function(col){
+    const items=state.hotels.filter(h=>state.status[h.id]===col.key&&visible(h));
+    return '<div class="col" ondragover="event.preventDefault()" ondrop="onDrop(event,\''+col.key+'\')"><div class="col-t"><span>'+col.title+'</span><span>'+items.length+'</span></div>'+
+      items.map(function(h){
+        return '<div class="k '+(selectedId===h.id?'active':'')+'" draggable="true" ondragstart="onDrag(event,\''+h.id+'\')" onclick="selectHotel(\''+h.id+'\',true)">'+
+          '<div class="n">'+h.priority+'. '+h.name+'</div><div class="s">'+h.distKm.toFixed(1)+'km · 分<span class="score">'+scoreHotel(h)+'</span></div></div>';
+      }).join('')+'</div>';
+  }).join('');
+}
+window.onDrag=function(e,id){e.dataTransfer.setData('text/plain',id)};
+window.onDrop=function(e,col){e.preventDefault();var id=e.dataTransfer.getData('text/plain');if(id)setStatus(id,col)};
+
+function renderList(){
+  var html='';
+  state.hotels.filter(visible).sort(function(a,b){return a.priority-b.priority||a.distKm-b.distKm}).forEach(function(h){
+    var open=openIds.has(h.id)||selectedId===h.id;
+    var ck=state.compare.indexOf(h.id)>=0?'checked':'';
+    var warn=h.band==='far'?' · <span style="color:#9f1239">>8km</span>':h.band==='r8'?' · 拓展圈':'';
+    html+='<div class="hotel '+(selectedId===h.id?'selected':'')+(open?' open':'')+'" id="card-'+h.id+'">'+
+      '<div class="head" onclick="toggleCard(\''+h.id+'\')">'+
+        '<div><h3>'+h.name+'</h3><div class="rows"><b>'+h.distKm.toFixed(1)+'km</b> · '+h.cluster+warn+' · '+statusTitle(state.status[h.id])+' · 分<span class="score">'+scoreHotel(h)+'</span></div></div>'+
+        '<span class="badge p'+h.priority+'">P'+h.priority+'</span></div>'+
+      '<div class="body">'+
+        '<div class="rows">'+h.addr+'<br/>'+h.price+' · '+h.tables+'<br/>电话：<b>'+h.phone+'</b>（'+h.phoneNote+'）<br/>'+h.why+'</div>'+
+        '<div class="bar">'+
+          '<label class="check" style="margin:0" onclick="event.stopPropagation()"><input type="checkbox" '+ck+' onchange="toggleCompare(\''+h.id+'\',this.checked)"/>对比</label>'+
+          (String(h.phone).indexOf('待')===0?'':'<a class="btn primary" href="tel:'+String(h.phone).replace(/-/g,'')+'" onclick="event.stopPropagation()">拨打</a>')+
+          '<button class="btn" onclick="event.stopPropagation();copyScript(\''+h.id+'\')">话术</button>'+
+          '<button class="btn" onclick="event.stopPropagation();setStatus(\''+h.id+'\',\'valid\')">有效</button>'+
+          '<button class="btn" onclick="event.stopPropagation();setStatus(\''+h.id+'\',\'primary\')">主选</button>'+
+          '<button class="btn" onclick="event.stopPropagation();setStatus(\''+h.id+'\',\'backup\')">备选</button>'+
+          '<button class="btn" onclick="event.stopPropagation();setStatus(\''+h.id+'\',\'out\')">淘汰</button>'+
+        '</div>'+
+        '<div class="field"><label>手动更新 · 餐标文案</label><input data-edit="price" data-id="'+h.id+'" value="'+escAttr(h.price)+'"/></div>'+
+        '<div class="field"><label>手动更新 · 电话</label><input data-edit="phone" data-id="'+h.id+'" value="'+escAttr(h.phone)+'"/></div>'+
+        '<div class="field"><label>手动更新 · 中位估(元/桌)</label><input data-edit="priceMid" data-id="'+h.id+'" type="number" value="'+(h.priceMid||'')+'"/></div>'+
+        '<div class="field"><label>手动更新 · 桌数/厅型</label><input data-edit="tables" data-id="'+h.id+'" value="'+escAttr(h.tables||'')+'"/></div>'+
+        '<div class="field"><label>手动更新 · 地址</label><input data-edit="addr" data-id="'+h.id+'" value="'+escAttr(h.addr||'')+'"/></div>'+
+        '<div class="field"><label>优先级</label><select data-edit="priority" data-id="'+h.id+'"><option value="1"'+(h.priority==1?' selected':'')+'>P1</option><option value="2"'+(h.priority==2?' selected':'')+'>P2</option><option value="3"'+(h.priority==3?' selected':'')+'>P3</option></select></div>'+
+        '<div class="field"><label>通话笔记</label><textarea data-note="'+h.id+'" rows="2">'+escText(state.notes[h.id]||'')+'</textarea></div>'+
+        '<div class="bar"><button class="btn ok" onclick="event.stopPropagation();saveEdits(\''+h.id+'\')">保存手动更新</button></div>'+
+      '</div></div>';
+  });
+  document.getElementById('hotelList').innerHTML=html;
+  document.querySelectorAll('[data-note]').forEach(function(el){
+    el.oninput=function(){state.notes[el.getAttribute('data-note')]=el.value;state.calls[el.getAttribute('data-note')]={at:new Date().toISOString(),note:el.value};save(state);if(selectedId===el.getAttribute('data-note')) renderDetail()};
+  });
+}
+function escAttr(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+function escText(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}
+window.toggleCard=function(id){
+  if(openIds.has(id)&&selectedId===id){openIds.delete(id)} else {openIds.add(id)}
+  selectHotel(id,true);
+};
+window.toggleCompare=function(id,on){
+  if(on){if(state.compare.length>=3){toast('最多3家');renderList();return} if(state.compare.indexOf(id)<0) state.compare.push(id)}
+  else state.compare=state.compare.filter(function(x){return x!==id});
+  save(state);renderCompare();
+};
+window.saveEdits=function(id){
+  var h=state.hotels.find(function(x){return x.id===id}); if(!h) return;
+  document.querySelectorAll('[data-edit][data-id="'+id+'"]').forEach(function(el){
+    var key=el.getAttribute('data-edit'); var val=el.value;
+    if(key==='priceMid'||key==='priority') h[key]=+val; else h[key]=val;
+  });
+  if(String(h.phone).indexOf('待')!==0) h.phoneNote='手动更新';
+  state.manual[id]={at:new Date().toISOString()};
+  enrich(h); save(state); rebuildMarkers(); renderAll(); selectHotel(id,false); toast('已保存手动更新');
+};
+
+function renderCompare(){
+  var list=state.compare.map(function(id){return state.hotels.find(function(h){return h.id===id})}).filter(Boolean);
+  var box=document.getElementById('compare');
+  if(list.length<2){box.className='foot';box.innerHTML='勾选 2–3 家后对比';return}
+  box.className='';
+  var rows=[['名称',function(h){return h.name}],['评分',function(h){return scoreHotel(h)}],['距离',function(h){return h.distKm.toFixed(1)+'km'}],['餐标',function(h){return h.price}],['中位',function(h){return h.priceMid}],['状态',function(h){return statusTitle(state.status[h.id])}],['电话',function(h){return h.phone}]];
+  box.innerHTML='<table class="cmp">'+rows.map(function(r){return '<tr><th>'+r[0]+'</th>'+list.map(function(h){return '<td>'+r[1](h)+'</td>'}).join('')+'</tr>'}).join('')+'</table>';
+}
+
+function renderDetail(){
+  var h=state.hotels.find(function(x){return x.id===selectedId});
+  document.getElementById('syncHint').textContent=h?h.name:'未选择';
+  if(!h){document.getElementById('detail').textContent='点击酒店卡片展开详情';return}
+  var tel=String(h.phone).indexOf('待')===0?'<button class="btn" disabled>电话待核实</button>':'<a class="btn primary" href="tel:'+String(h.phone).replace(/-/g,'')+'">拨打 '+h.phone+'</a>';
+  document.getElementById('detail').innerHTML=
+    '<div style="font-family:ZCOOL XiaoWei,serif;font-size:1.15rem">'+h.name+'</div>'+
+    '<div class="rows">'+h.addr+'<br/><b>'+h.distKm.toFixed(1)+' km</b> · '+h.band+' · 综合分 <span class="score">'+scoreHotel(h)+'</span><br/>'+
+    h.price+' · 中位 '+h.priceMid+'<br/>'+h.tables+'<br/>状态：<b>'+statusTitle(state.status[h.id])+'</b><br/>'+h.why+'<br/>微调：'+h.tip+
+    (state.manual[h.id]?'<br/>上次手动更新：'+state.manual[h.id].at:'')+'</div>'+
+    '<div class="bar">'+tel+
+      '<button class="btn" onclick="copyScript(\''+h.id+'\')">复制话术</button>'+
+      '<button class="btn" onclick="setStatus(\''+h.id+'\',\'callback\')">回拨</button>'+
+      '<button class="btn" onclick="setStatus(\''+h.id+'\',\'visit\')">约看</button>'+
+      '<button class="btn" onclick="setStatus(\''+h.id+'\',\'primary\')">主选</button>'+
+      '<button class="btn" onclick="setStatus(\''+h.id+'\',\'backup\')">备选</button></div>'+
+    '<div class="script" style="margin-top:8px">'+(SCRIPT.replace(/\\n/g,'\n'))+'\n\n【微调】'+h.tip+'</div>';
+}
+
+function selectHotel(id, openCard){
+  selectedId=id;
+  if(openCard) openIds.add(id);
+  var h=state.hotels.find(function(x){return x.id===id}); if(!h) return;
+  var ll=wgs84ToGcj02(h.lat,h.lng); map.panTo(ll); if(markers[h.id]) markers[h.id].openPopup();
+  renderDetail(); renderKanban(); renderList();
+  var el=document.getElementById('card-'+id); if(el) el.scrollIntoView({block:'nearest',behavior:'smooth'});
+}
+window.selectHotel=selectHotel;
+window.copyScript=async function(id){
+  var h=state.hotels.find(function(x){return x.id===id});
+  var t=(SCRIPT.replace(/\\n/g,'\n'))+'\n\n【微调】'+h.tip+'\n【电话】'+h.phone;
+  try{await navigator.clipboard.writeText(t);toast('已复制')}catch(e){toast('复制失败')}
+};
+
+var TREE=[
+  {id:'d1',q:'1. 距新通国际花园？',opts:[{v:'r5',l:'≤5km'},{v:'r8',l:'5–8km'},{v:'far',l:'>8km'}]},
+  {id:'d2',q:'2. 10/1 可接 8–10 桌？',opts:[{v:'yes',l:'书面有'},{v:'maybe',l:'含糊'},{v:'no',l:'无'}]},
+  {id:'d3',q:'3. 厅型？',opts:[{v:'solo',l:'独立厅'},{v:'iso',l:'可隔离'},{v:'mix',l:'拼厅'}]},
+  {id:'d4',q:'4. 费用报全？',opts:[{v:'full',l:'完整'},{v:'half',l:'半份'},{v:'none',l:'拒答'}]},
+  {id:'d5',q:'5. 餐标匹配？',opts:[{v:'fit',l:'匹配'},{v:'high',l:'偏高可解释'},{v:'bad',l:'不匹配'}]}
+];
+function decide(t){
+  if(t.d1==='far') return {tag:'淘汰',why:'超出8km'};
+  if(t.d2==='no') return {tag:'淘汰',why:'无国庆档'};
+  if(t.d3==='mix') return {tag:'淘汰',why:'拼厅无隔离'};
+  if(t.d4==='none') return {tag:'回拨/半份',why:'费用不透明'};
+  if(t.d2==='maybe'||t.d4==='half') return {tag:'回拨/半份',why:'信息未闭环'};
+  if(t.d5==='bad') return {tag:'淘汰',why:'餐标不匹配'};
+  if(t.d1==='r8') return {tag:'备选',why:'拓展圈'};
+  if(t.d3==='iso'||t.d5==='high') return {tag:'备选',why:'可接受有风险'};
+  if(t.d1==='r5'&&t.d2==='yes'&&t.d3==='solo'&&t.d4==='full') return {tag:'主选候选',why:'进入主选排序'};
+  return {tag:'继续收集',why:'选项未齐'};
+}
+function renderTree(){
+  document.getElementById('tree').innerHTML=TREE.map(function(s){
+    return '<div class="tree-step"><div class="q">'+s.q+'</div><div class="opts">'+s.opts.map(function(o){
+      return '<button class="btn '+(state.tree[s.id]===o.v?'on':'')+'" onclick="setTree(\''+s.id+'\',\''+o.v+'\')">'+o.l+'</button>';
+    }).join('')+'</div></div>';
+  }).join('');
+  var r=decide(state.tree);
+  document.getElementById('treeResult').innerHTML='<b>建议：'+r.tag+'</b> — '+r.why+'<br/><button class="btn primary" style="margin-top:5px" onclick="applyTree()">应用到当前场地</button>';
+}
+window.setTree=function(id,v){state.tree[id]=v;save(state);renderTree()};
+window.applyTree=function(){
+  if(!selectedId){toast('先选场地');return}
+  var r=decide(state.tree);
+  var mapTag={'淘汰':'out','回拨/半份':'callback','备选':'backup','主选候选':'primary','继续收集':'callback'};
+  setStatus(selectedId, mapTag[r.tag]||'callback');
+  state.notes[selectedId]=(state.notes[selectedId]||'')+'\n[决策树] '+r.tag+' — '+r.why;
+  save(state); selectHotel(selectedId,true);
+};
+
+function buildReportRows(){
+  return state.hotels.map(enrich).map(function(h){
+    return {h:h, score:scoreHotel(h), st:state.status[h.id], note:state.notes[h.id]||''};
+  }).sort(function(a,b){return b.score-a.score});
+}
+function renderReport(){
+  var rows=buildReportRows();
+  var top=rows.filter(function(r){return ['primary','backup','visit','valid'].indexOf(r.st)>=0 || r.score>=60}).slice(0,12);
+  if(!top.length) top=rows.slice(0,10);
+  var html='<p><b>圆心</b>：新通国际花园 · <b>日期</b>：2027-10-01 · <b>规模</b>：8–10桌 · <b>生成</b>：'+new Date().toLocaleString('zh-CN')+'</p>';
+  html+='<p>主选：'+(state.hotels.filter(function(h){return state.status[h.id]==='primary'}).map(function(h){return h.name}).join('、')||'未定')+
+    '　备选：'+(state.hotels.filter(function(h){return state.status[h.id]==='backup'}).map(function(h){return h.name}).join('、')||'未定')+'</p>';
+  html+='<table class="rep"><tr><th>#</th><th>场地</th><th>分</th><th>距离</th><th>餐标/中位</th><th>状态</th><th>电话</th><th>笔记摘要</th></tr>';
+  top.forEach(function(r,i){
+    html+='<tr><td>'+(i+1)+'</td><td>'+r.h.name+'</td><td>'+r.score+'</td><td>'+r.h.distKm.toFixed(1)+'km</td><td>'+r.h.price+' / '+r.h.priceMid+'</td><td>'+statusTitle(r.st)+'</td><td>'+r.h.phone+'</td><td>'+escText((r.note||'').slice(0,40))+'</td></tr>';
+  });
+  html+='</table>';
+  html+='<p class="foot">评分启发式：距离+优先级+状态+餐标带+电话可信度。平台展示价≠成交价。</p>';
+  document.getElementById('reportBody').innerHTML=html;
+  return {rows:top, html:html};
+}
+function exportWord(){
+  var rep=renderReport();
+  var primary=state.hotels.filter(function(h){return state.status[h.id]==='primary'});
+  var backup=state.hotels.filter(function(h){return state.status[h.id]==='backup'});
+  var body='<h1>通州梨园小婚宴 · 场地可比报告</h1>'+
+    '<p>委托人：george quan　日期：2027-10-01　圆心：新通国际花园　规模：8–10桌　预算中位约10万</p>'+
+    '<p>生成时间：'+new Date().toLocaleString('zh-CN')+'</p>'+
+    '<h2>一、结论摘要</h2>'+
+    '<p>主选：'+(primary.map(function(h){return h.name}).join('、')||'尚未指定')+'</p>'+
+    '<p>备选：'+(backup.map(function(h){return h.name}).join('、')||'尚未指定')+'</p>'+
+    '<h2>二、可比排名（综合分）</h2>'+
+    '<table border="1" cellspacing="0" cellpadding="6" style="border-collapse:collapse;width:100%">'+
+    '<tr style="background:#f3efe6"><th>排名</th><th>场地</th><th>综合分</th><th>距离</th><th>圈层</th><th>公开餐标</th><th>中位估</th><th>状态</th><th>电话</th><th>商圈</th></tr>'+
+    rep.rows.map(function(r,i){
+      return '<tr><td>'+(i+1)+'</td><td>'+r.h.name+'</td><td>'+r.score+'</td><td>'+r.h.distKm.toFixed(1)+' km</td><td>'+r.h.band+'</td><td>'+r.h.price+'</td><td>'+r.h.priceMid+'</td><td>'+statusTitle(r.st)+'</td><td>'+r.h.phone+'</td><td>'+r.h.cluster+'</td></tr>';
+    }).join('')+'</table>'+
+    '<h2>三、逐家要点</h2>'+
+    rep.rows.map(function(r){
+      return '<h3>'+r.h.name+'</h3><p>地址：'+r.h.addr+'<br/>为何入围：'+r.h.why+'<br/>微调话术：'+r.h.tip+'<br/>笔记：'+(r.note||'（无）')+'</p>';
+    }).join('')+
+    '<h2>四、决策树当前选择</h2><pre>'+JSON.stringify(state.tree,null,2)+'</pre>'+
+    '<h2>五、声明</h2><p>餐标来自公开平台展示价与手动更新，不等于2027国庆成交价。坐标为规划近似，签约前请用高德驾车复核。本报告由婚礼决策看板自动生成。</p>';
+  var doc='<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="utf-8"><title>场地可比报告</title>'+
+    '<!--[if gte mso 9]><xml><w:WordDocument><w:View>Print</w:View></w:WordDocument></xml><![endif]-->'+
+    '<style>body{font-family:宋体,SimSun,sans-serif;font-size:12pt}h1{font-size:18pt}h2{font-size:14pt;margin-top:16pt}table{font-size:10pt}</style></head><body>'+body+'</body></html>';
+  download('通州梨园婚宴-场地可比报告.doc', '\ufeff'+doc, 'application/msword');
+  toast('已导出 Word(.doc)');
+}
+
+document.getElementById('btnReport').onclick=function(){renderReport();document.getElementById('reportModal').classList.add('show')};
+document.getElementById('btnCloseReport').onclick=function(){document.getElementById('reportModal').classList.remove('show')};
+document.getElementById('btnWord').onclick=exportWord;
+document.getElementById('btnWordFromReport').onclick=exportWord;
+document.getElementById('btnPublishHelp').onclick=function(){document.getElementById('publishModal').classList.add('show')};
+document.getElementById('btnClosePublish').onclick=function(){document.getElementById('publishModal').classList.remove('show')};
+
+document.getElementById('filters').addEventListener('click',function(e){
+  var b=e.target.closest('[data-f]'); if(!b) return;
+  filter=b.dataset.f;
+  document.querySelectorAll('#filters [data-f]').forEach(function(x){x.classList.toggle('on',x.dataset.f===filter)});
+  applyFilter();
+});
+document.getElementById('btnFit').onclick=function(){
+  var pts=state.hotels.filter(visible).map(function(h){return wgs84ToGcj02(h.lat,h.lng)});
+  pts.push([clat,clng]); map.fitBounds(pts,{padding:[36,36]});
+};
+document.getElementById('search').oninput=function(e){q=e.target.value.trim();applyFilter()};
+
+document.getElementById('btnExportJson').onclick=function(){
+  download('wedding-board-export.json', JSON.stringify({version:3,exportedAt:new Date().toISOString(),center:CENTER,hotels:state.hotels,status:state.status,notes:state.notes,compare:state.compare,tree:state.tree,goals:state.goals,manual:state.manual},null,2), 'application/json');
+  toast('已导出JSON');
+};
+document.getElementById('btnExportCsv').onclick=function(){
+  var headers=['id','priority','name','addr','lat','lng','distKm','band','price','priceMid','tables','phone','phoneNote','cluster','status','score','why','tip','note'];
+  var lines=[headers.join(',')];
+  state.hotels.forEach(function(h){enrich(h);lines.push(headers.map(function(k){
+    if(k==='status')return csvEscape(state.status[h.id]);
+    if(k==='note')return csvEscape(state.notes[h.id]||'');
+    if(k==='score')return csvEscape(scoreHotel(h));
+    return csvEscape(h[k]);
+  }).join(','))});
+  download('wedding-hotels.csv', lines.join('\n'), 'text/csv'); toast('已导出CSV');
+};
+document.getElementById('btnExportCalls').onclick=function(){
+  var lines=['id,name,status,phone,note,updatedAt'];
+  state.hotels.forEach(function(h){
+    if(!state.notes[h.id]) return;
+    lines.push([h.id,h.name,state.status[h.id],h.phone,state.notes[h.id],(state.calls[h.id]||{}).at||''].map(csvEscape).join(','));
+  });
+  download('wedding-calls.csv', lines.join('\n'), 'text/csv'); toast('已导出通话表');
+};
+document.getElementById('importJson').onchange=async function(e){
+  var f=e.target.files&&e.target.files[0]; if(!f) return;
+  try{
+    var data=JSON.parse(await f.text());
+    if(data.hotels) state.hotels=data.hotels;
+    ['status','notes','compare','tree','goals','manual','calls'].forEach(function(k){if(data[k]) state[k]=data[k]});
+    state.hotels.forEach(function(h){if(!state.status[h.id]) state.status[h.id]='todo'; enrich(h)});
+    save(state); document.getElementById('hotelCount').textContent=state.hotels.length; rebuildMarkers(); renderAll(); selectHotel(state.hotels[0].id,true); toast('JSON已导入');
+  }catch(err){toast('导入失败')}
+  e.target.value='';
+};
+document.getElementById('importCsv').onchange=async function(e){
+  var f=e.target.files&&e.target.files[0]; if(!f) return;
+  try{
+    var text=await f.text(); var rows=text.trim().split(/\r?\n/); var headers=rows.shift().split(',').map(function(x){return x.trim()});
+    var n=0;
+    rows.forEach(function(line){
+      if(!line.trim()) return;
+      var cols=[],cur='',inq=false;
+      for(var i=0;i<line.length;i++){var ch=line[i]; if(ch==='"'){inq=!inq;continue} if(ch===','&&!inq){cols.push(cur);cur='';continue} cur+=ch}
+      cols.push(cur);
+      var obj={}; headers.forEach(function(h,i){obj[h]=cols[i]});
+      if(!obj.id||!obj.name) return;
+      var row={id:obj.id,priority:+obj.priority||3,name:obj.name,addr:obj.addr||'',lat:+obj.lat||CENTER.lat,lng:+obj.lng||CENTER.lng,price:obj.price||'待询',priceMid:+obj.priceMid||2500,tables:obj.tables||'',phone:obj.phone||'待核实',phoneNote:obj.phoneNote||'导入',cluster:obj.cluster||'导入',why:obj.why||'',tip:obj.tip||'导入',styleFit:'both'};
+      var ex=state.hotels.find(function(h){return h.id===obj.id});
+      if(ex) Object.assign(ex,row); else state.hotels.push(row);
+      if(obj.status) state.status[obj.id]=obj.status; else if(!state.status[obj.id]) state.status[obj.id]='todo';
+      if(obj.note) state.notes[obj.id]=obj.note;
+      n++;
+    });
+    state.hotels.forEach(enrich); save(state); document.getElementById('hotelCount').textContent=state.hotels.length; rebuildMarkers(); renderAll(); toast('CSV合并 '+n+' 行');
+  }catch(err){toast('CSV失败')}
+  e.target.value='';
+};
+document.getElementById('btnAdd').onclick=function(){
+  var name=document.getElementById('newName').value.trim(); if(!name){toast('填名称');return}
+  var id='custom_'+Date.now();
+  var h={id:id,priority:3,name:name,addr:document.getElementById('newAddr').value.trim(),lat:+document.getElementById('newLat').value||CENTER.lat,lng:+document.getElementById('newLng').value||CENTER.lng,price:'待询',priceMid:2500,tables:'',phone:document.getElementById('newPhone').value.trim()||'待核实',phoneNote:'自定义',cluster:'自定义',why:'手动添加',tip:'补全信息',styleFit:'both'};
+  enrich(h); state.hotels.push(h); state.status[id]='todo'; save(state);
+  document.getElementById('hotelCount').textContent=state.hotels.length; rebuildMarkers(); renderAll(); selectHotel(id,true); toast('已添加');
+};
+document.getElementById('btnReset').onclick=function(){if(!confirm('重置为种子名单？'))return; localStorage.removeItem(STORE); location.reload()};
+
+function bindGoals(){document.querySelectorAll('[data-goal]').forEach(function(el){el.checked=!!state.goals[el.dataset.goal]; el.onchange=function(){state.goals[el.dataset.goal]=el.checked;save(state)}})}
+function renderAll(){renderStats();renderKanban();renderList();renderCompare();renderTree();renderDetail();document.getElementById('hotelCount').textContent=state.hotels.length}
+bindGoals(); rebuildMarkers(); renderAll(); selectHotel(selectedId,true); setTimeout(function(){map.invalidateSize()},200);
+</script>
+</body>
+</html>
