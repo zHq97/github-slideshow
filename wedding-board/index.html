@@ -37,6 +37,8 @@ h1{margin:0;font-family:"ZCOOL XiaoWei",serif;font-size:1.28rem;font-weight:400}
 .hotel{border:1px solid var(--line);border-radius:12px;background:#fff;margin-bottom:6px;overflow:hidden;transition:border-color .15s,box-shadow .15s}
 .hotel.selected{border-color:var(--accent);box-shadow:0 0 0 2px rgba(196,92,38,.15)}
 .hotel .head{padding:8px;cursor:pointer;display:flex;justify-content:space-between;gap:6px;align-items:flex-start}
+.hotel .head .chev{font-size:.65rem;color:var(--soft);white-space:nowrap;margin-top:2px}
+.hotel.open .head .chev{color:var(--accent)}
 .hotel h3{margin:0;font-size:.82rem}.badge{font-size:.6rem;font-weight:700;padding:2px 6px;border-radius:999px}.p1{background:#fde8dc;color:#9a3412}.p2{background:#d8f3ea;color:#115e4a}.p3{background:#e4e9f0;color:#334155}
 .rows{font-size:.7rem;color:var(--soft)}.rows b{color:var(--ink)}
 .hotel .body{display:none;padding:0 8px 10px;border-top:1px dashed var(--line);animation:rise .25s ease}
@@ -146,7 +148,7 @@ table.cmp,table.rep{width:100%;border-collapse:collapse;font-size:.66rem}table.c
 </main>
 <aside class="panel">
   <div class="card" id="syncCard"><h2>当前选中 · 联动<span class="h" id="syncHint">未选择</span></h2><div id="detail">点击酒店卡片展开详情；地图/看板/列表同步。</div></div>
-  <div class="card"><h2>名单 · 点击展开<span class="h">可手动改</span></h2>
+  <div class="card"><h2>名单 · 点击展开 / 再点收起<span class="h">可手动改</span></h2>
     <input type="text" id="search" placeholder="搜索名称/商圈…"/>
     <div id="hotelList" style="margin-top:7px"></div>
   </div>
@@ -355,14 +357,17 @@ window.onDrop=function(e,col){e.preventDefault();var id=e.dataTransfer.getData('
 function renderList(){
   var html='';
   state.hotels.filter(visible).sort(function(a,b){return a.priority-b.priority||a.distKm-b.distKm}).forEach(function(h){
-    var open=openIds.has(h.id)||selectedId===h.id;
+    var open=openIds.has(h.id);
     var ck=state.compare.indexOf(h.id)>=0?'checked':'';
     var warn=h.band==='far'?' · <span style="color:#9f1239">>8km</span>':h.band==='r8'?' · 拓展圈':'';
     var acc=' · '+accuracyLabel(h.accuracy||'approximate');
     html+='<div class="hotel '+(selectedId===h.id?'selected':'')+(open?' open':'')+'" id="card-'+h.id+'">'+
-      '<div class="head" onclick="toggleCard(\''+h.id+'\')">'+
+      '<div class="head" onclick="toggleCard(\''+h.id+'\')" title="'+(open?'点击收起':'点击展开')+'">'+
         '<div><h3>'+h.name+' '+verifyBadge(h)+'</h3><div class="rows"><b>'+h.distKm.toFixed(1)+'km</b> · '+h.cluster+warn+' · '+statusTitle(state.status[h.id])+' · 分<span class="score">'+scoreHotel(h)+'</span></div></div>'+
-        '<span class="badge p'+h.priority+'">P'+h.priority+'</span></div>'+
+        '<div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">'+
+          '<span class="badge p'+h.priority+'">P'+h.priority+'</span>'+
+          '<span class="chev">'+(open?'收起 ▾':'展开 ▸')+'</span>'+
+        '</div></div>'+
       '<div class="body">'+
         '<div class="rows">'+h.addr+'<br/>'+h.price+' · '+h.tables+'<br/>电话：<b>'+h.phone+'</b>（'+h.phoneNote+'）<br/>'+h.why+'</div>'+
         sourcesHtml(h)+
@@ -393,8 +398,14 @@ function renderList(){
 function escAttr(s){return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
 function escText(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')}
 window.toggleCard=function(id){
-  if(openIds.has(id)&&selectedId===id){openIds.delete(id)} else {openIds.add(id)}
-  selectHotel(id,true);
+  if(openIds.has(id)){
+    openIds.delete(id);
+    selectedId=id;
+    renderDetail(); renderKanban(); renderList();
+  }else{
+    openIds.add(id);
+    selectHotel(id,false);
+  }
 };
 window.toggleCompare=function(id,on){
   if(on){if(state.compare.length>=3){toast('最多3家');renderList();return} if(state.compare.indexOf(id)<0) state.compare.push(id)}
