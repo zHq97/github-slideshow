@@ -96,13 +96,18 @@ classes:
   - callout
 ```
 
+This front matter affects only the root deck assembled by `index.html`.
+`_layouts/slide.html` does not copy `classes` onto standalone post pages. Put a
+class on an element in the Markdown content as well if the standalone page
+must receive the same treatment.
+
 ## Verification
 
 After changing styles:
 
 1. Run `script/server` and open the root deck.
-2. Check a standalone post URL such as `/welcome-to-our-slide-deck`; standalone
-   pages use `_layouts/slide.html` and do not initialize reveal.js plugins.
+2. Check a standalone post URL such as `/intro`; standalone pages use
+   `_layouts/slide.html` and do not initialize reveal.js plugins.
 3. Check narrow and wide viewports, long headings, links, lists, images, and
    fenced code.
 4. Open the browser's print preview. Print CSS loads after the theme and may
